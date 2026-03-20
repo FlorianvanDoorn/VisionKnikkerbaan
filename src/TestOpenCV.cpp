@@ -22,7 +22,7 @@ int main() {
         return -1;
     }
 
-     Mat src, hsv, mask1, mask2, mask;
+     Mat src, hsv, mask1, mask2, mask3, mask;
 
     while (true) {
         
@@ -36,6 +36,8 @@ int main() {
         inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);  // Lage rood range
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
+        inRange(hsv, Scalar(15, 110, 70), Scalar(40, 255, 255), mask3);   // Geel range
+
         // Combineer
         mask = mask1 | mask2;
 
@@ -44,15 +46,22 @@ int main() {
         morphologyEx(mask, mask, MORPH_OPEN, kernel);
         morphologyEx(mask, mask, MORPH_CLOSE, kernel);
 
+        // 3. Ruis verwijderen (optioneel maar sterk aanbevolen)
+        morphologyEx(mask3, mask3, MORPH_OPEN, kernel);
+        morphologyEx(mask3, mask3, MORPH_CLOSE, kernel);
+
         // 4. Contours vinden
         vector<vector<Point>> contours;
         findContours(mask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
         // Check of er überhaupt contours zijn gevonden
         if (contours.empty()) {
+
+            // Display the image
             imshow("Source", src);
             imshow("Mask", mask);
-
+            
+            // ESC = stoppen
             if (waitKey(1) == 27) break;
             continue;
         }
@@ -61,11 +70,13 @@ int main() {
         int largestIndex = 0;
         double maxArea = 0;
 
+        // Loop door alle contours en vind de grootste
         for (int i = 0; i < contours.size(); i++) {
 
             double area = contourArea(contours[i]);
 
-            if (area > maxArea) {
+            // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
+            if (area > maxArea && area > 500) {
 
                 maxArea = area;
                 largestIndex = i;
@@ -78,6 +89,7 @@ int main() {
         int cx = int(m.m10 / m.m00);
         int cy = int(m.m01 / m.m00);
 
+        // Print het middelpunt naar terminal
         cout << "Middelpunt: (" << cx << ", " << cy << ")" << endl;
 
         // 7. Visualisatie
@@ -90,12 +102,11 @@ int main() {
         imshow("Source", src);
         imshow("HSV", hsv);
         imshow("Mask", mask);
+        imshow("Mask3", mask3);
 
         // ESC = stoppen
-        if (waitKey(1) == 27) {
-            break;
-        }
-    
+        if (waitKey(1) == 27) break;
+        
     }
 
     // Camera vrijgeven
