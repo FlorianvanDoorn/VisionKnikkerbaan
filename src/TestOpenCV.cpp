@@ -13,7 +13,7 @@ int main() {
     cout << "OpenCV version: " << CV_VERSION << endl;
 
     // Load an source image in grayscale.
-    Mat src = imread("threshold.png", IMREAD_GRAYSCALE);
+    Mat src = imread("RodeBal.jpeg", IMREAD_GRAYSCALE);
     
     // pipeline: thresholding
     Mat dest;
