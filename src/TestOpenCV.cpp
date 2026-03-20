@@ -13,7 +13,68 @@ int main() {
     cout << "OpenCV version: " << CV_VERSION << endl;
 
     // Load an source image in grayscale.
-    Mat src = imread("RodeBal.jpeg", IMREAD_GRAYSCALE);
+    Mat src = imread("RodeBal.jpeg", IMREAD_COLOR);
+
+    // 1. BGR → HSV
+    Mat hsv;
+    cvtColor(src, hsv, COLOR_BGR2HSV);
+
+    // 2. Mask voor rood (2 ranges!)
+    Mat mask1, mask2, mask;
+
+    // Lage rood range
+    inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);
+    // Hoge rood range
+    inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);
+
+    // Combineer
+    mask = mask1 | mask2;
+
+    // 3. Ruis verwijderen (optioneel maar sterk aanbevolen)
+    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5,5));
+    morphologyEx(mask, mask, MORPH_OPEN, kernel);
+    morphologyEx(mask, mask, MORPH_CLOSE, kernel);
+
+    // 4. Contours vinden
+    vector<vector<Point>> contours;
+    findContours(mask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+    
+
+    // 5. Grootste contour pakken (aannemen = bal)
+    int largestIndex = 0;
+    double maxArea = 0;
+
+    for (int i = 0; i < contours.size(); i++) {
+
+        double area = contourArea(contours[i]);
+
+        if (area > maxArea) {
+
+            maxArea = area;
+            largestIndex = i;
+        }
+    }
+
+    // 6. Middelpunt berekenen (centroid)
+    Moments m = moments(contours[largestIndex]);
+
+    int cx = int(m.m10 / m.m00);
+    int cy = int(m.m01 / m.m00);
+
+    cout << "Middelpunt: (" << cx << ", " << cy << ")" << endl;
+
+    // 7. Visualisatie
+    circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
+    drawContours(src, contours, largestIndex, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
+
+    /*
+
+    //blur the image to reduce noise before edge detection.
+    Mat src_blurred;
+    GaussianBlur(src, src_blurred, Size(3, 3), 0);
+
+
     
     // pipeline: thresholding
     Mat dest;
@@ -21,7 +82,7 @@ int main() {
 
     // 
     Mat canny_output;
-    vector<vector<Point> > contours;
+    //vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     Canny(dest, canny_output, 50, 150, 3);
 
@@ -58,11 +119,17 @@ int main() {
         return -1;
     }
 
+    */
+
     // Display the image
     imshow("Source", src);
-    imshow("Destination", dest);
-    imshow("Canny", canny_output);
-    imshow("Contours", drawing);
+    imshow("HSV", hsv);
+    imshow("Mask", mask);
+    imshow("kernel", kernel);
+    //imshow("Blurred", src_blurred);
+    //imshow("Destination", dest);
+    //imshow("Canny", canny_output);
+    //imshow("Contours", drawing);
 
     waitKey(0);
 
