@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build",
+  "command": "/usr/bin/g++ -isystem /usr/include/opencv4 -g -o CMakeFiles/main.dir/src/TestOpenCV.cpp.o -c \"/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/TestOpenCV.cpp\"",
+  "file": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/TestOpenCV.cpp",
+  "output": "CMakeFiles/main.dir/src/TestOpenCV.cpp.o"
+}
+]
