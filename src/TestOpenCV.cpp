@@ -36,7 +36,7 @@ int main() {
         inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);  // Lage rood range
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
-        inRange(hsv, Scalar(15, 110, 70), Scalar(40, 255, 255), mask3);   // Geel range
+        inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
 
         // Combineer
         mask = mask1 | mask2;
