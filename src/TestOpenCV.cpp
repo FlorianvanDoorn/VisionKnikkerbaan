@@ -33,12 +33,11 @@ int main() {
         cvtColor(src, hsv, COLOR_BGR2HSV);
 
         // 2. Mask voor rood (2 ranges!)
-        inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);  // Lage rood range
-        inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
+        inRange(hsv, Scalar(0, 120, 50), Scalar(10, 255, 255), mask1);  // Lage rood range
+        inRange(hsv, Scalar(170, 120, 50), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(85, 90, 50), Scalar(105, 255, 255), mask3);   // Blauw range
-
+        inRange(hsv, Scalar(85, 90, 40), Scalar(105, 255, 255), mask3);   // Blauw range
 
         // Combineer
         mask = mask1 | mask2;
@@ -119,7 +118,11 @@ int main() {
 
                 maxAreaBlue = areaBlue;
                 largestIndexBlue[0] = i;
-                largestIndexBlue[1] = i-1; // Neem ook de vorige oppervlakte mee (om beide borders te pakken)
+
+                if (i > 0) {
+                    largestIndexBlue[1] = i-1; // Neem ook de vorige oppervlakte mee (om beide borders te pakken)
+                }
+               
             }
         }
 
@@ -141,6 +144,18 @@ int main() {
         
         int cxBlue2 = int(mBlue2.m10 / mBlue2.m00);
         int cyBlue2 = int(mBlue2.m01 / mBlue2.m00);
+
+
+        int dyred = cyRed - cyBlue1;
+        int dxred = cxRed - cxBlue1;
+
+        int dyBlue = cyBlue1 - cyBlue2;
+        int dxBlue = cxBlue1 - cxBlue2;
+
+        int LengthBlue = sqrt(dxBlue * dxBlue + dyBlue * dyBlue);
+
+        int LengthRed = sqrt(dxred * dxred + dyred * dyred);
+
         
 
         // Print het middelpunt naar terminal
@@ -148,6 +163,9 @@ int main() {
 
         cout << "Border 1: (" << cxBlue1 << ", " << cyBlue1 << ")" << endl;
         cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
+
+        cout << "Afstand tussen borders: " << LengthBlue << " pixels" << endl;
+        cout << "Afstand tussen bal en border: " << LengthRed << " pixels" << endl;
 
         // 7. Visualisatie
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
