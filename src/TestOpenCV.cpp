@@ -37,7 +37,7 @@ int main() {
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(85, 90, 70), Scalar(105, 255, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(85, 90, 50), Scalar(105, 255, 255), mask3);   // Blauw range
 
 
         // Combineer
@@ -115,7 +115,7 @@ int main() {
             double areaBlue = contourArea(BorderContours[i]);
 
             // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
-            if (areaBlue > maxAreaBlue && areaBlue > 250) {
+            if (areaBlue > maxAreaBlue && areaBlue > 500) {
 
                 maxAreaBlue = areaBlue;
                 largestIndexBlue[0] = i;
@@ -128,7 +128,7 @@ int main() {
         Moments mRed = moments(Ballcontours[largestIndexRed]);
 
         Moments mBlue1 = moments(BorderContours[largestIndexBlue[0]]);
-        // Moments mBlue2 = moments(BorderContours[largestIndexBlue[1]]);
+        Moments mBlue2 = moments(BorderContours[largestIndexBlue[1]]);
 
         
         int cxRed = int(mRed.m10 / mRed.m00);
@@ -138,20 +138,23 @@ int main() {
         int cxBlue1 = int(mBlue1.m10 / mBlue1.m00);
         int cyBlue1 = int(mBlue1.m01 / mBlue1.m00);
 
-        /*
+        
         int cxBlue2 = int(mBlue2.m10 / mBlue2.m00);
         int cyBlue2 = int(mBlue2.m01 / mBlue2.m00);
-        */
+        
 
         // Print het middelpunt naar terminal
         cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
 
         cout << "Border 1: (" << cxBlue1 << ", " << cyBlue1 << ")" << endl;
-        // cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
+        cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
 
         // 7. Visualisatie
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
+        circle(src, Point(cxBlue1, cyBlue1), 5, Scalar(0, 0, 0), -1); // Zwart cirkeltje op de border
+        circle(src, Point(cxBlue2, cyBlue2), 5, Scalar(0, 0, 0), -1); // Zwart cirkeltje op de border
 
+        
         
         drawContours(src, Ballcontours, largestIndexRed, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
         drawContours(src, BorderContours, largestIndexBlue[0], Scalar(0, 255, 255), 2); // Gele contour van de border
