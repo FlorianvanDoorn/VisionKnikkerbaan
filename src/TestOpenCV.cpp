@@ -49,41 +49,42 @@ int main() {
         morphologyEx(mask, mask, MORPH_CLOSE, kernel);
 
         // 3. Ruis verwijderen (optioneel maar sterk aanbevolen)
-        morphologyEx(mask3, mask3, MORPH_OPEN, kernel);
-        morphologyEx(mask3, mask3, MORPH_CLOSE, kernel);
+        morphologyEx(mask3, mask3, MORPH_OPEN, kernel); // Openen: eerst erode, dan dilate (verwijdert kleine witte ruis)
+        morphologyEx(mask3, mask3, MORPH_CLOSE, kernel);    // Sluiten: eerst dilate, dan erode (vult kleine zwarte gaten in de contouren)
 
         // 4. Contours van rood vinden
-        vector<vector<Point>> Ballcontours;
-        findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+        vector<vector<Point>> Ballcontours;   // Vector voor rode contours
+        findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);   // Alleen externe contours, geen hiërarchie nodig, eenvoudige benadering
 
-        vector<vector<Point>> BorderContours;
-        findContours(mask3, BorderContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+        // 4. Contours van blauw vinden
+        vector<vector<Point>> BorderContours;   // Vector voor blauwe contours
+        findContours(mask3, BorderContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);    // Alleen externe contours, geen hiërarchie nodig, eenvoudige benadering
 
 
-        // Check of er überhaupt contours zijn gevonden
+        // Check of er überhaupt rode contours zijn gevonden
         if (Ballcontours.empty()) {
 
             // Display the image
-            imshow("Source", src);
-            imshow("Mask", mask);
-            imshow("Mask3", mask3);
+            imshow("Source", src);  // Geef het originele beeld weer.
+            imshow("Mask", mask);   // Geef het rode mask weer.
+            imshow("Mask3", mask3); // Geef het blauwe mask weer.
             
             // ESC = stoppen
             if (waitKey(1) == 27) break;
-            continue;
+            continue;   // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
         }
 
-        // Check of er überhaupt contours zijn gevonden
+        // Check of er überhaupt blauwe contours zijn gevonden
         if (BorderContours.empty()) {
 
             // Display the image
-            imshow("Source", src);
-            imshow("Mask", mask);
-            imshow("Mask3", mask3);
-            
+            imshow("Source", src);  // Geef het originele beeld weer.
+            imshow("Mask", mask);   // Geef het rode mask weer.
+            imshow("Mask3", mask3); // Geef het blauwe mask weer.
+
             // ESC = stoppen
             if (waitKey(1) == 27) break;
-            continue;
+            continue;   // Ga terug naar het begin van de loop als er geen blauwe contours zijn gevonden (om fouten te voorkomen bij het tekenen van de borders)
         }
 
 
@@ -124,16 +125,34 @@ int main() {
 
 
         // 6. Middelpunt berekenen (centroid)
-        Moments m = moments(Ballcontours[largestIndexRed]);
+        Moments mRed = moments(Ballcontours[largestIndexRed]);
 
-        int cx = int(m.m10 / m.m00);
-        int cy = int(m.m01 / m.m00);
+        Moments mBlue1 = moments(BorderContours[largestIndexBlue[0]]);
+        // Moments mBlue2 = moments(BorderContours[largestIndexBlue[1]]);
+
+        
+        int cxRed = int(mRed.m10 / mRed.m00);
+        int cyRed = int(mRed.m01 / mRed.m00);
+
+        
+        int cxBlue1 = int(mBlue1.m10 / mBlue1.m00);
+        int cyBlue1 = int(mBlue1.m01 / mBlue1.m00);
+
+        /*
+        int cxBlue2 = int(mBlue2.m10 / mBlue2.m00);
+        int cyBlue2 = int(mBlue2.m01 / mBlue2.m00);
+        */
 
         // Print het middelpunt naar terminal
-        cout << "Middelpunt: (" << cx << ", " << cy << ")" << endl;
+        cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
+
+        cout << "Border 1: (" << cxBlue1 << ", " << cyBlue1 << ")" << endl;
+        // cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
 
         // 7. Visualisatie
-        circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
+        circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
+
+        
         drawContours(src, Ballcontours, largestIndexRed, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
         drawContours(src, BorderContours, largestIndexBlue[0], Scalar(0, 255, 255), 2); // Gele contour van de border
         drawContours(src, BorderContours, largestIndexBlue[1], Scalar(0, 255, 255), 2); // Gele contour van de border
