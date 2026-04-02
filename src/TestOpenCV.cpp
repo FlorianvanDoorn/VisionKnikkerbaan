@@ -56,7 +56,10 @@ int main() {
         vector<vector<Point>> Ballcontours;
         findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-            
+        vector<vector<Point>> BorderContours;
+        findContours(mask3, BorderContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+
         // Check of er überhaupt contours zijn gevonden
         if (Ballcontours.empty()) {
 
@@ -70,25 +73,57 @@ int main() {
             continue;
         }
 
+        // Check of er überhaupt contours zijn gevonden
+        if (BorderContours.empty()) {
+
+            // Display the image
+            imshow("Source", src);
+            imshow("Mask", mask);
+            imshow("Mask3", mask3);
+            
+            // ESC = stoppen
+            if (waitKey(1) == 27) break;
+            continue;
+        }
+
+
         // 5. Grootste contour pakken (aannemen = bal)
-        int largestIndex = 0;
-        double maxArea = 0;
+        int largestIndexRed = 0;
+        double maxAreaRed = 0;
 
         // Loop door alle contours en vind de grootste
         for (int i = 0; i < Ballcontours.size(); i++) {
 
-            double area = contourArea(Ballcontours[i]);
+            double areaRed = contourArea(Ballcontours[i]);
 
             // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
-            if (area > maxArea && area > 500) {
+            if (areaRed > maxAreaRed && areaRed > 500) {
 
-                maxArea = area;
-                largestIndex = i;
+                maxAreaRed = areaRed;
+                largestIndexRed = i;
             }
         }
 
+        // 5. Grootste contour pakken (aannemen = bal)
+        int largestIndexBlue = 0;
+        double maxAreaBlue = 0;
+
+        // Loop door alle contours en vind de grootste
+        for (int i = 0; i < BorderContours.size(); i++) {
+
+            double areaBlue = contourArea(BorderContours[i]);
+
+            // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
+            if (areaBlue > maxAreaBlue && areaBlue > 250) {
+
+                maxAreaBlue = areaBlue;
+                largestIndexBlue = i;
+            }
+        }
+
+
         // 6. Middelpunt berekenen (centroid)
-        Moments m = moments(Ballcontours[largestIndex]);
+        Moments m = moments(Ballcontours[largestIndexRed]);
 
         int cx = int(m.m10 / m.m00);
         int cy = int(m.m01 / m.m00);
@@ -98,7 +133,8 @@ int main() {
 
         // 7. Visualisatie
         circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
-        drawContours(src, Ballcontours, largestIndex, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
+        drawContours(src, Ballcontours, largestIndexRed, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
+        drawContours(src, BorderContours, largestIndexBlue, Scalar(0, 255, 255), 2); // Gele contour van de border
 
     
 
