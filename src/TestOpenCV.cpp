@@ -37,7 +37,7 @@ int main() {
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(90, 120, 70), Scalar(105, 255, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(85, 100, 70), Scalar(105, 255, 255), mask3);   // Blauw range
 
 
         // Combineer
@@ -56,26 +56,14 @@ int main() {
         vector<vector<Point>> Ballcontours;
         findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-        // 4. Contours van blauw vinden
-        vector<vector<Point>> PylonContours;
-        findContours(mask3, PylonContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
-        if (!PylonContours.empty()) {
-            
-            // Esc = stoppen
-            if (waitKey(1) == 27) break;
-
-            // Ga verder.
-            continue;
-        }
 
         // Check of er überhaupt contours zijn gevonden
         if (Ballcontours.empty()) {
 
             // Display the image
-            // imshow("Source", src);
-            // imshow("Mask", mask);
-            // imshow("Mask3", mask3);
+            imshow("Source", src);
+            imshow("Mask", mask);
+            imshow("Mask3", mask3);
             
             // ESC = stoppen
             if (waitKey(1) == 27) break;
@@ -111,7 +99,6 @@ int main() {
         // 7. Visualisatie
         circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
         drawContours(src, Ballcontours, largestIndex, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
-        drawContours(src, PylonContours, -1, Scalar(0, 0, 255), 2); // Rode contouren van pylonen
 
     
 
