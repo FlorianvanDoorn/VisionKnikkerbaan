@@ -105,7 +105,7 @@ int main() {
         }
 
         // 5. Grootste contour pakken (aannemen = bal)
-        int largestIndexBlue = 0;
+        int largestIndexBlue[2] = {0, 0};
         double maxAreaBlue = 0;
 
         // Loop door alle contours en vind de grootste
@@ -117,7 +117,8 @@ int main() {
             if (areaBlue > maxAreaBlue && areaBlue > 250) {
 
                 maxAreaBlue = areaBlue;
-                largestIndexBlue = i;
+                largestIndexBlue[0] = i;
+                largestIndexBlue[1] = i-1; // Neem ook de vorige oppervlakte mee (om beide borders te pakken)
             }
         }
 
@@ -134,7 +135,8 @@ int main() {
         // 7. Visualisatie
         circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
         drawContours(src, Ballcontours, largestIndexRed, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
-        drawContours(src, BorderContours, largestIndexBlue, Scalar(0, 255, 255), 2); // Gele contour van de border
+        drawContours(src, BorderContours, largestIndexBlue[0], Scalar(0, 255, 255), 2); // Gele contour van de border
+        drawContours(src, BorderContours, largestIndexBlue[1], Scalar(0, 255, 255), 2); // Gele contour van de border
 
     
 
