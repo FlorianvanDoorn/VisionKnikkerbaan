@@ -37,7 +37,7 @@ int main() {
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(90, 40, 120), Scalar(105, 140, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(90, 120, 70), Scalar(105, 255, 255), mask3);   // Blauw range
 
 
         // Combineer
@@ -52,16 +52,30 @@ int main() {
         morphologyEx(mask3, mask3, MORPH_OPEN, kernel);
         morphologyEx(mask3, mask3, MORPH_CLOSE, kernel);
 
-        // 4. Contours vinden
-        vector<vector<Point>> contours;
-        findContours(mask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+        // 4. Contours van rood vinden
+        vector<vector<Point>> Ballcontours;
+        findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+        // 4. Contours van blauw vinden
+        vector<vector<Point>> PylonContours;
+        findContours(mask3, PylonContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+        if (!PylonContours.empty()) {
+            
+            // Esc = stoppen
+            if (waitKey(1) == 27) break;
+
+            // Ga verder.
+            continue;
+        }
 
         // Check of er überhaupt contours zijn gevonden
-        if (contours.empty()) {
+        if (Ballcontours.empty()) {
 
             // Display the image
-            imshow("Source", src);
-            imshow("Mask", mask);
+            // imshow("Source", src);
+            // imshow("Mask", mask);
+            // imshow("Mask3", mask3);
             
             // ESC = stoppen
             if (waitKey(1) == 27) break;
@@ -73,9 +87,9 @@ int main() {
         double maxArea = 0;
 
         // Loop door alle contours en vind de grootste
-        for (int i = 0; i < contours.size(); i++) {
+        for (int i = 0; i < Ballcontours.size(); i++) {
 
-            double area = contourArea(contours[i]);
+            double area = contourArea(Ballcontours[i]);
 
             // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
             if (area > maxArea && area > 500) {
@@ -86,7 +100,7 @@ int main() {
         }
 
         // 6. Middelpunt berekenen (centroid)
-        Moments m = moments(contours[largestIndex]);
+        Moments m = moments(Ballcontours[largestIndex]);
 
         int cx = int(m.m10 / m.m00);
         int cy = int(m.m01 / m.m00);
@@ -96,7 +110,8 @@ int main() {
 
         // 7. Visualisatie
         circle(src, Point(cx, cy), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
-        drawContours(src, contours, largestIndex, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
+        drawContours(src, Ballcontours, largestIndex, Scalar(255, 0, 0), 2); // Blauwe contour van de bal
+        drawContours(src, PylonContours, -1, Scalar(0, 0, 255), 2); // Rode contouren van pylonen
 
     
 
