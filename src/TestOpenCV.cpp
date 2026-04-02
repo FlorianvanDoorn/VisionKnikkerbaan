@@ -37,7 +37,7 @@ int main() {
         inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(85, 100, 70), Scalar(105, 255, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(85, 90, 70), Scalar(105, 255, 255), mask3);   // Blauw range
 
 
         // Combineer
@@ -56,7 +56,7 @@ int main() {
         vector<vector<Point>> Ballcontours;
         findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-
+            
         // Check of er überhaupt contours zijn gevonden
         if (Ballcontours.empty()) {
 
