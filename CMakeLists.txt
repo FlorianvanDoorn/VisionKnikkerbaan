@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(Les_04)
+project(VisionKnikkerbaan)
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(main src/TestOpenCV.cpp)
-target_link_libraries(main ${OpenCV_LIBS}) 
+add_executable(main 
+    src/TestOpenCV.cpp
+)
+
+target_link_libraries(main ${OpenCV_LIBS})

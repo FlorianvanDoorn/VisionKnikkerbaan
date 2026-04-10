@@ -114,7 +114,7 @@ int main() {
             double areaBlue = contourArea(BorderContours[i]);
 
             // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
-            if (areaBlue > maxAreaBlue && areaBlue > 500) {
+            if (areaBlue > maxAreaBlue && areaBlue > 50) {
 
                 maxAreaBlue = areaBlue;
                 largestIndexBlue[0] = i;

@@ -847,7 +847,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "Les_04"
+			"value" : "VisionKnikkerbaan"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
@@ -1158,7 +1158,31 @@
 			"value" : "[/usr][v4.10.0()]"
 		},
 		{
-			"name" : "Les_04_BINARY_DIR",
+			"name" : "OpenCV_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for OpenCV."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/lib/x86_64-linux-gnu/cmake/opencv4"
+		},
+		{
+			"name" : "PRINT_PATHS",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "No help, variable specified on the command line."
+				}
+			],
+			"type" : "UNINITIALIZED",
+			"value" : "ON"
+		},
+		{
+			"name" : "VisionKnikkerbaan_BINARY_DIR",
 			"properties" : 
 			[
 				{
@@ -1170,7 +1194,7 @@
 			"value" : "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build"
 		},
 		{
-			"name" : "Les_04_IS_TOP_LEVEL",
+			"name" : "VisionKnikkerbaan_IS_TOP_LEVEL",
 			"properties" : 
 			[
 				{
@@ -1182,7 +1206,7 @@
 			"value" : "ON"
 		},
 		{
-			"name" : "Les_04_SOURCE_DIR",
+			"name" : "VisionKnikkerbaan_SOURCE_DIR",
 			"properties" : 
 			[
 				{
@@ -1192,18 +1216,6 @@
 			],
 			"type" : "STATIC",
 			"value" : "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan"
-		},
-		{
-			"name" : "OpenCV_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "The directory containing a CMake configuration file for OpenCV."
-				}
-			],
-			"type" : "PATH",
-			"value" : "/usr/lib/x86_64-linux-gnu/cmake/opencv4"
 		},
 		{
 			"name" : "_CMAKE_CXX_LINKER_PUSHPOP_STATE_SUPPORTED",
