@@ -37,9 +37,9 @@ int main() {
         inRange(hsv, Scalar(170, 120, 50), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(85, 90, 40), Scalar(105, 255, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(85, 40, 120), Scalar(95, 255, 255), mask3);   // Blauw range
 
-        // Combineer
+        // Combineer            
         mask = mask1 | mask2;
 
         // 3. Ruis verwijderen (optioneel maar sterk aanbevolen)
