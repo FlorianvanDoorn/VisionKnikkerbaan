@@ -37,7 +37,7 @@ int main() {
         inRange(hsv, Scalar(170, 120, 50), Scalar(180, 255, 255), mask2);   // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
-        inRange(hsv, Scalar(85, 40, 120), Scalar(95, 255, 255), mask3);   // Blauw range
+        inRange(hsv, Scalar(85, 40, 200), Scalar(99, 255, 255), mask3);   // Blauw range
 
         // Combineer            
         mask = mask1 | mask2;
@@ -144,6 +144,8 @@ int main() {
         
         int cxBlue2 = int(mBlue2.m10 / mBlue2.m00);
         int cyBlue2 = int(mBlue2.m01 / mBlue2.m00);
+
+        
 
 
         int dyred = cyRed - cyBlue1;
