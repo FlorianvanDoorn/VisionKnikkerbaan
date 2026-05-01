@@ -30,8 +30,12 @@ int main() {
         cap.read(src);
 
 
-
+        // Variabele voor de afstand tussen de bal en de border
         double ActualPosition = 0; // Initialize the actual position
+
+        // Seriele communicatie met Arduino (vervang "COM3" door de juiste poortnaam)
+        // SerialPort serial("COM3", 9600); // Baudrate moet overeenkomen
+        cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
 
         // Display the image
         imshow("Source", src);
