@@ -92,7 +92,6 @@ main: \
   /lib/x86_64-linux-gnu/libQt5Gui.so.5 \
   /lib/x86_64-linux-gnu/libQt5Core.so.5 \
   /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.10.0 \
-  /lib/x86_64-linux-gnu/libm.so.6 \
   /lib/x86_64-linux-gnu/libdc1394.so.25 \
   /lib/x86_64-linux-gnu/libgstbase-1.0.so.0 \
   /lib/x86_64-linux-gnu/libgstreamer-1.0.so.0 \
@@ -556,8 +555,6 @@ CMakeFiles/main.dir/src/TestOpenCV.cpp.o:
 /lib/x86_64-linux-gnu/libQt5Core.so.5:
 
 /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.10.0:
-
-/lib/x86_64-linux-gnu/libm.so.6:
 
 /lib/x86_64-linux-gnu/libdc1394.so.25:
 

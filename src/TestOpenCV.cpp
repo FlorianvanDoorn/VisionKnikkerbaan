@@ -33,9 +33,11 @@ int main() {
         // Variabele voor de afstand tussen de bal en de border
         double ActualPosition = 0; // Initialize the actual position
 
+        ActualPosition = 10 + (10 * sin(1 * (double) getTickCount() / getTickFrequency())); // Simuleer een variërende positie (vervang dit met echte berekening)
+
         // Seriele communicatie met Arduino (vervang "COM3" door de juiste poortnaam)
         // SerialPort serial("COM3", 9600); // Baudrate moet overeenkomen
-        cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
+        cout << "$" << ActualPosition << "*" << endl;
 
         // Display the image
         imshow("Source", src);
