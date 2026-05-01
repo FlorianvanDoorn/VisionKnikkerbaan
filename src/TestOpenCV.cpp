@@ -158,6 +158,10 @@ int main() {
 
         int LengthRed = sqrt(dxred * dxred + dyred * dyred);
 
+        if (LengthBlue < 1) LengthBlue = 1;
+        if (LengthRed < 1) LengthRed = 1;
+
+        double ActualPosition = (static_cast<double>(LengthRed) / static_cast<double>(LengthBlue)) * 20.0; // Actuele positie van de bal in cm
         
 
         // Print het middelpunt naar terminal
@@ -168,6 +172,7 @@ int main() {
 
         cout << "Afstand tussen borders: " << LengthBlue << " pixels" << endl;
         cout << "Afstand tussen bal en border: " << LengthRed << " pixels" << endl;
+        cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
 
         // 7. Visualisatie
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
