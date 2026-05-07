@@ -4,6 +4,10 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+
 
 using namespace std;
 using namespace cv;
@@ -23,6 +27,35 @@ int main() {
     }
 
      Mat src, hsv, mask1, mask2, mask3, mask;
+
+    // Open de seriële poort (vervang "/dev/ttyUSB0" door de juiste poortnaam)
+    int serial_port = open("/dev/ttyUSB0", O_RDWR);
+
+    // Check of de seriële poort succesvol is geopend
+    if (serial_port < 0) {
+        perror("Error opening serial port");
+        return -1;
+    }
+
+    // Configureer de seriële poort (baudrate, data bits, stop bits, parity, etc.)
+    termios tty;    // Struct voor seriële poort instellingen
+    tcgetattr(serial_port, &tty);   // Lees huidige instellingen
+
+    // Stel de baudrate in (115200 baud)
+    cfsetispeed(&tty, B115200); // Stel de baudrate in (115200 baud)
+    cfsetospeed(&tty, B115200); // Stel de baudrate in (115200 baud)
+
+    // Configureer de seriële poort instellingen (8N1, geen flow control)
+    tty.c_cflag |= (CLOCAL | CREAD);    // Enable receiver, set local mode
+    tty.c_cflag &= ~CSIZE;  // Clear current data bits setting
+    tty.c_cflag |= CS8; // Set 8 data bits
+    tty.c_cflag &= ~PARENB; // No parity
+    tty.c_cflag &= ~CSTOPB; // 1 stop bit
+    tty.c_cflag &= ~CRTSCTS;    // No hardware flow control
+
+    // Stel de nieuwe instellingen in
+    tcsetattr(serial_port, TCSANOW, &tty);
+
 
     while (true) {
         
@@ -165,14 +198,18 @@ int main() {
         
 
         // Print het middelpunt naar terminal
-        cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
+        // cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
 
-        cout << "Border 1: (" << cxBlue1 << ", " << cyBlue1 << ")" << endl;
-        cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
+        // cout << "Border 1: (" << cxBlue1 << ", " << cyBlue1 << ")" << endl;
+        // cout << "Border 2: (" << cxBlue2 << ", " << cyBlue2 << ")" << endl;
 
-        cout << "Afstand tussen borders: " << LengthBlue << " pixels" << endl;
-        cout << "Afstand tussen bal en border: " << LengthRed << " pixels" << endl;
-        cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
+        // cout << "Afstand tussen borders: " << LengthBlue << " pixels" << endl;
+        // cout << "Afstand tussen bal en border: " << LengthRed << " pixels" << endl;
+        // cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
+
+        string msg = "$" + to_string(ActualPosition) + "*\n";
+        write(serial_port, msg.c_str(), msg.length());  
+
 
         // 7. Visualisatie
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
