@@ -194,8 +194,11 @@ int main() {
         if (LengthBlue < 1) LengthBlue = 1;
         if (LengthRed < 1) LengthRed = 1;
 
-        double ActualPosition = (static_cast<double>(LengthRed) / static_cast<double>(LengthBlue)) * 20.0; // Actuele positie van de bal in cm
+        double ActualPosition = (static_cast<double>(LengthRed) / static_cast<double>(LengthBlue)) * 200.0; // Actuele positie van de bal in cm
         
+        if (ActualPosition < 0.0) ActualPosition = 0.0;
+        if (ActualPosition > 200.0) ActualPosition = 200.0;
+
 
         // Print het middelpunt naar terminal
         // cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
