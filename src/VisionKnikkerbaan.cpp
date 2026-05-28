@@ -34,6 +34,8 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
@@ -66,15 +68,24 @@ int dxBlue = 0;     // Verschil in X-coördinaat tussen eerste en tweede blauwe 
 int dyBlue = 0;     // Verschil in Y-coördinaat tussen eerste en tweede blauwe contour
 int LengthBlue = 0; // Afstand tussen eerste en tweede blauwe contour in pixels
 
-double ActualPosition = 0.0;   // Actuele positie van de knikker in cm (0-200 cm)
+double ActualPosition = 0.0;   // Actuele positie van de knikker in mm (0-200 mm)
+double DesiredPosition = 0.0;        // Gewenste positie van de knikker in mm (0-200 mm)
 
 // Trackbar instellingen voor de blauwe border-masker
 int blueLowH = 85;
 int blueHighH = 99;
-int blueLowS = 40;
 int blueHighS = 255;
+int blueLowS = 40;
 int blueLowV = 200;
 int blueHighV = 255;
+
+// Integer trackbars voor double waarden (schaling met 0.1)
+int desiredPositionInt = 0;  // 0-2000 (wordt gedeeld door 10 voor 0.0-200.0 mm)
+
+// Proportionele versterking (hoog-res trackbar: schaal 0.001)
+int proportionalGainInt = 35; // 1.000 -> waarde = proportionalGainInt / 1000.0
+double proportionalGain = 0.035;  // wordt elke iteratie geüpdatet
+double DiffValue = 0.6;       // Standaard waarde
 
 void onTrackbar(int, void*) {}
 
@@ -120,13 +131,22 @@ int main() {
     tcsetattr(serial_port, TCSANOW, &tty);
 
     // Maak een regulatiescherm voor de blauwe border-maskers
+    namedWindow("ThresholdControls", WINDOW_NORMAL);
+    createTrackbar("Blue H min", "ThresholdControls", &blueLowH, 179, onTrackbar);
+    createTrackbar("Blue H max", "ThresholdControls", &blueHighH, 179, onTrackbar);
+    createTrackbar("Blue S min", "ThresholdControls", &blueLowS, 255, onTrackbar);
+    createTrackbar("Blue S max", "ThresholdControls", &blueHighS, 255, onTrackbar);
+    createTrackbar("Blue V min", "ThresholdControls", &blueLowV, 255, onTrackbar);
+    createTrackbar("Blue V max", "ThresholdControls", &blueHighV, 255, onTrackbar);
+
     namedWindow("Controls", WINDOW_NORMAL);
-    createTrackbar("Blue H min", "Controls", &blueLowH, 179, onTrackbar);
-    createTrackbar("Blue H max", "Controls", &blueHighH, 179, onTrackbar);
-    createTrackbar("Blue S min", "Controls", &blueLowS, 255, onTrackbar);
-    createTrackbar("Blue S max", "Controls", &blueHighS, 255, onTrackbar);
-    createTrackbar("Blue V min", "Controls", &blueLowV, 255, onTrackbar);
-    createTrackbar("Blue V max", "Controls", &blueHighV, 255, onTrackbar);
+    createTrackbar("Desired pos [mm]", "Controls", &desiredPositionInt, 2000, onTrackbar);
+    createTrackbar("Kp x0.001", "Controls", &proportionalGainInt, 100000, onTrackbar); // 0.000 - 100.000
+
+    cout << "\n=== Besturingselementen ===" << endl;
+    cout << "Gebruik de trackbars: 'Desired pos' en 'Kp x0.001'" << endl;
+    cout << "Of: '+' / '-' wijzigingen, of druk 'k' om Kp te sturen, 'P' om desired te pushen" << endl;
+    cout << "ESC: Afsluiten" << endl;
 
 
     while (true) {
@@ -280,6 +300,12 @@ int main() {
         if (ActualPosition < 0.0) ActualPosition = 0.0;
         if (ActualPosition > 200.0) ActualPosition = 200.0;
 
+        // Converteer trackbar integer naar double (0-2000 → 0.0-200.0 mm)
+        DesiredPosition = desiredPositionInt / 10.0;
+
+        // Converteer Kp integer (x0.001) naar double (bijv. 1000 -> 1.000)
+        proportionalGain = proportionalGainInt / 1000.0;
+
 
         // Print het middelpunt naar terminal
         // cout << "Middelpunt: (" << cxRed << ", " << cyRed << ")" << endl;
@@ -289,13 +315,13 @@ int main() {
 
         // cout << "Afstand tussen borders: " << LengthBlue << " pixels" << endl;
         // cout << "Afstand tussen bal en border: " << LengthRed << " pixels" << endl;
-        // cout << "Afstand tussen bal en border: " << ActualPosition << " cm" << endl;
+        // cout << "Afstand tussen bal en border: " << ActualPosition << " mm" << endl;
 
+        
 
         // Stuur de actuele positie van de bal naar de microcontroller via de seriële poort
-        string msg = "$ActPos," + to_string(ActualPosition) + "*\n";
-        write(serial_port, msg.c_str(), msg.length());  
-
+        string Posmsg = "$Actpos," + to_string(ActualPosition) + "*\n";
+        write(serial_port, Posmsg.c_str(), Posmsg.length());
 
         // 7. Teken het middelpunt van de bal en de uiteinden van de knikkerbaan
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1); // Groen cirkeltje op het middelpunt
@@ -313,13 +339,51 @@ int main() {
     
 
         // geef het beeld weer
+        {
+            std::ostringstream ss;
+            ss << fixed << setprecision(4) << proportionalGain;
+            putText(src, "Desired: " + to_string(DesiredPosition) + " mm", Point(10, 30), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+            putText(src, string("Kp: ") + ss.str(), Point(10, 60), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+            putText(src, "Press P to push, K to send Kp", Point(10, 90), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
+        }
+
         imshow("Source", src);
         imshow("HSV", hsv);
         imshow("Mask", mask);
         imshow("Mask3", mask3);
 
-        // ESC = stoppen
-        if (waitKey(1) == 27) break;
+        int key = waitKey(1);
+        if (key == '+' || key == '=') {
+            // verhoog Kp met 0.001 (alleen update lokaal, geen verzenden)
+            proportionalGainInt += 1; // 0.001
+            if (proportionalGainInt > 100000) proportionalGainInt = 100000;
+            proportionalGain = proportionalGainInt / 1000.0;
+            cout << "Kp (updated): " << fixed << setprecision(4) << proportionalGain << " (not sent)" << endl;
+        }
+        if (key == '-' || key == '_') {
+            // verlaag Kp met 0.001 (alleen update lokaal, geen verzenden)
+            proportionalGainInt -= 1; // 0.001
+            if (proportionalGainInt < 0) proportionalGainInt = 0;
+            proportionalGain = proportionalGainInt / 1000.0;
+            cout << "Kp (updated): " << fixed << setprecision(4) << proportionalGain << " (not sent)" << endl;
+        }
+        if (key == 'k' || key == 'K') {
+            ostringstream ss; ss << fixed << setprecision(4) << proportionalGain;
+            string Kpmsg = "$Kp," + ss.str() + "*\n";
+            write(serial_port, Kpmsg.c_str(), Kpmsg.length());
+            cout << "Sent Kp: " << ss.str() << endl;
+        }
+        if (key == 'p' || key == 'P') {
+            // stuur desired position en Kp
+            ostringstream ss; ss << fixed << setprecision(1) << DesiredPosition;
+            string Desirmsg = "$Desirpos," + ss.str() + "*\n";
+            write(serial_port, Desirmsg.c_str(), Desirmsg.length());
+            ostringstream ss2; ss2 << fixed << setprecision(4) << proportionalGain;
+            string Kpmsg = "$Kp," + ss2.str() + "*\n";
+            write(serial_port, Kpmsg.c_str(), Kpmsg.length());
+            cout << "Pushed desired position: " << ss.str() << " mm and Kp=" << ss2.str() << endl;
+        }
+        if (key == 27) break;
         
     }
 
