@@ -129,29 +129,29 @@ main/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
-src/TestOpenCV.o: src/TestOpenCV.cpp.o
-.PHONY : src/TestOpenCV.o
+src/VisionKnikkerbaan.o: src/VisionKnikkerbaan.cpp.o
+.PHONY : src/VisionKnikkerbaan.o
 
 # target to build an object file
-src/TestOpenCV.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/TestOpenCV.cpp.o
-.PHONY : src/TestOpenCV.cpp.o
+src/VisionKnikkerbaan.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o
+.PHONY : src/VisionKnikkerbaan.cpp.o
 
-src/TestOpenCV.i: src/TestOpenCV.cpp.i
-.PHONY : src/TestOpenCV.i
+src/VisionKnikkerbaan.i: src/VisionKnikkerbaan.cpp.i
+.PHONY : src/VisionKnikkerbaan.i
 
 # target to preprocess a source file
-src/TestOpenCV.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/TestOpenCV.cpp.i
-.PHONY : src/TestOpenCV.cpp.i
+src/VisionKnikkerbaan.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.i
+.PHONY : src/VisionKnikkerbaan.cpp.i
 
-src/TestOpenCV.s: src/TestOpenCV.cpp.s
-.PHONY : src/TestOpenCV.s
+src/VisionKnikkerbaan.s: src/VisionKnikkerbaan.cpp.s
+.PHONY : src/VisionKnikkerbaan.s
 
 # target to generate assembly for a file
-src/TestOpenCV.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/TestOpenCV.cpp.s
-.PHONY : src/TestOpenCV.cpp.s
+src/VisionKnikkerbaan.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.s
+.PHONY : src/VisionKnikkerbaan.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... main"
-	@echo "... src/TestOpenCV.o"
-	@echo "... src/TestOpenCV.i"
-	@echo "... src/TestOpenCV.s"
+	@echo "... src/VisionKnikkerbaan.o"
+	@echo "... src/VisionKnikkerbaan.i"
+	@echo "... src/VisionKnikkerbaan.s"
 .PHONY : help
 
 

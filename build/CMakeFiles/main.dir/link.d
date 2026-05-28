@@ -2,7 +2,7 @@ main: \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/Scrt1.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crti.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/crtbeginS.o \
-  CMakeFiles/main.dir/src/TestOpenCV.cpp.o \
+  CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o \
   /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_alphamat.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_aruco.so.4.10.0 \
@@ -375,7 +375,7 @@ main: \
 
 /usr/lib/gcc/x86_64-linux-gnu/14/crtbeginS.o:
 
-CMakeFiles/main.dir/src/TestOpenCV.cpp.o:
+CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 
 /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.10.0:
 

@@ -1,5 +1,5 @@
-CMakeFiles/main.dir/src/TestOpenCV.cpp.o: \
- /home/florianvandoorn/Documents/Code\ C++/VisionKnikkerbaan/src/TestOpenCV.cpp \
+CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o: \
+ /home/florianvandoorn/Documents/Code\ C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp \
  /usr/include/stdc-predef.h /usr/include/opencv4/opencv2/opencv.hpp \
  /usr/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/include/opencv4/opencv2/core.hpp \

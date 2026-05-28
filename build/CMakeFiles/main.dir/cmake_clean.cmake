@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/main.dir/link.d"
-  "CMakeFiles/main.dir/src/TestOpenCV.cpp.o"
-  "CMakeFiles/main.dir/src/TestOpenCV.cpp.o.d"
+  "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o"
+  "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o.d"
   "main"
   "main.pdb"
 )
