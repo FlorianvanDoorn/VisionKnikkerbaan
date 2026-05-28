@@ -18,7 +18,8 @@
 // |                                                                                  |
 // | Libraries:                                                                       |
 // | - OpenCV                                                                         |
-// | - iostream                                                                       |
+// | - iostream                                                                       | 
+// | - algorithm                                                                      |
 // | - fcntl.h                                                                        |
 // | - unistd.h                                                                       |
 // | - termios.h                                                                      |
@@ -292,7 +293,7 @@ int main() {
 
 
         // Stuur de actuele positie van de bal naar de microcontroller via de seriële poort
-        string msg = "$" + to_string(ActualPosition) + "*\n";
+        string msg = "$ActPos," + to_string(ActualPosition) + "*\n";
         write(serial_port, msg.c_str(), msg.length());  
 
 
