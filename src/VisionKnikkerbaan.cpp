@@ -38,6 +38,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include <string>
 
 // namespaces
 using namespace std;
@@ -132,7 +133,7 @@ int main()
     // Stel de nieuwe instellingen in
     tcsetattr(serial_port, TCSANOW, &tty);
 
-    // Maak een regulatiescherm voor de blauwe border-maskers
+    // Maak een regulatiescherm voor het instellen van de blauwe maskers
     namedWindow("ThresholdControls", WINDOW_NORMAL);
     createTrackbar("Blue H min", "ThresholdControls", &blueLowH, 179, onTrackbar);  // Hue blauw minimale waarde (0-179)
     createTrackbar("Blue H max", "ThresholdControls", &blueHighH, 179, onTrackbar); // Hue blauw maximale waarde (0-179)
@@ -141,16 +142,28 @@ int main()
     createTrackbar("Blue V min", "ThresholdControls", &blueLowV, 255, onTrackbar);  // Value blauw minimale waarde (0-255)
     createTrackbar("Blue V max", "ThresholdControls", &blueHighV, 255, onTrackbar); // Value blauw maximale waarde (0-255)
 
-    namedWindow("Controls", WINDOW_NORMAL);
-    createTrackbar("Desired position", "Controls", &desiredPositionInt, 200, onTrackbar);
-    createTrackbar("Kp x0.001", "Controls", &proportionalGainInt, 100, onTrackbar);
-    createTrackbar("Td x0.01", "Controls", &DiffValueInt, 100, onTrackbar);
+    // Maak een regulatiescherm voor het instellen van de gewenste positie en regelparameters
+    namedWindow("Controls", WINDOW_GUI_EXPANDED);
+    createTrackbar("Desired position", "Controls", &desiredPositionInt, 200, onTrackbar); // Gewenste positie trackbar (0-200 mm)
+    createTrackbar("Kp x0.001", "Controls", &proportionalGainInt, 100, onTrackbar);       // Proportionele versterking trackbar (0.000 - 0.100, schaal 0.001)
+    createTrackbar("Td x0.01", "Controls", &DiffValueInt, 100, onTrackbar);               // DiffValue trackbar (0.00 - 1.00, schaal 0.01)
 
+    // Laat de tekst permanent zien in de trackbarvensters
+    resizeWindow("Controls", 560, 220);
+    displayOverlay("Controls", "Gebruik de sliders om desired positie, Kp en Td aan te passen", 0);
+    displayStatusBar("Controls", "Desired pos = 0-200 mm | Kp = 0.000-0.100 | Td = 0.00-1.00", 0);
+    resizeWindow("ThresholdControls", 560, 260);
+    displayOverlay("ThresholdControls", "Gebruik deze sliders om blauwe thresholds voor het detectiemasker aan te passen", 0);
+    displayStatusBar("ThresholdControls", "Blue H/S/V range voor het detectiemasker", 0);
+
+    // Instructies voor de gebruiker op de console
     cout << "\n=== Vision knikkerbaan ===" << endl;
+    cout << getBuildInformation() << endl;
     cout << "Gebruik de trackbars: 'Desired position', 'Kp x0.001' en 'Td x0.01'" << endl;
     cout << "Druk toets 'P' om desired te pushen" << endl;
     cout << "ESC: Afsluiten" << endl;
 
+    // Main loop
     while (true)
     {
 
@@ -173,24 +186,23 @@ int main()
             std::swap(blueLowV, blueHighV);
         inRange(hsv, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), mask3); // Blauw range
 
-        // Combineer
+        // Combineer de twee rood ranges in één mask
         mask = mask1 | mask2;
 
-        // 3. Ruis verwijderen
+        // Ruis verwijderen (rode mask)
         Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
         morphologyEx(mask, mask, MORPH_OPEN, kernel);
         morphologyEx(mask, mask, MORPH_CLOSE, kernel);
 
-        // 3. Ruis verwijderen
+        // Ruis verwijderen (blauwe mask)
         morphologyEx(mask3, mask3, MORPH_OPEN, kernel);  // Openen: eerst erode, dan dilate (verwijdert kleine witte ruis)
         morphologyEx(mask3, mask3, MORPH_CLOSE, kernel); // Sluiten: eerst dilate, dan erode (vult kleine zwarte gaten in de contouren)
 
-        // 4. Contours van rood vinden
+        // Contours van rood vinden
         vector<vector<Point>> Ballcontours;                                   // Vector voor rode contours
         findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE); // Alleen externe contours, geen hiërarchie nodig, eenvoudige benadering
 
-        // 4. Contours / connected components van blauw vinden
-        // Gebruik connectedComponentsWithStats voor robuustere detectie en stabiele middelpuntbepaling
+        // Contours / connected components van blauw vinden
         Mat labels, stats, centroids;
         int nLabels = connectedComponentsWithStats(mask3, labels, stats, centroids);
 
@@ -244,6 +256,7 @@ int main()
             // ESC = stoppen
             if (waitKey(1) == 27)
                 break;
+
             continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
         }
 
@@ -265,9 +278,7 @@ int main()
             }
         }
 
-        // (oude BorderContours-logica verwijderd; we gebruiken nu connected components)
-
-        // 6. Middelpunt berekenen
+        // 6. Middelpunt van de bal berekenen
         Moments mRed = moments(Ballcontours[largestIndexRed]); // Bereken het middelpunt van de grootste rode contour (de bal)
 
         // Bereken de coördinaten van het middelpunt van de rode contour (de bal)
@@ -323,6 +334,8 @@ int main()
         string Posmsg = "$Actpos," + to_string(ActualPosition) + "*\n";
         write(serial_port, Posmsg.c_str(), Posmsg.length());
 
+        //========================== Visualisatie ==========================
+
         // 7. Teken het middelpunt van de bal en de uiteinden van de knikkerbaan
         circle(src, Point(cxRed, cyRed), 5, Scalar(0, 255, 0), -1);   // Groen cirkeltje op het middelpunt
         circle(src, Point(cxBlue1, cyBlue1), 5, Scalar(0, 0, 0), -1); // Zwart cirkeltje op de border
@@ -335,18 +348,14 @@ int main()
         circle(src, borderCenters[0], 10, Scalar(0, 255, 255), 2);
         circle(src, borderCenters[1], 10, Scalar(0, 255, 255), 2);
 
-        {
-            std::ostringstream ss;
-            ss << fixed << setprecision(4) << proportionalGain;
-            putText(src, "Desired: " + to_string(DesiredPosition) + " mm", Point(10, 30), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-            putText(src, string("Kp: ") + ss.str(), Point(10, 60), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-            putText(src, "DiffValue: " + to_string(DiffValue), Point(10, 90), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-            putText(src, "Press P to push values to microcontroller, ESC to stop", Point(10, 120), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
-        }
+        // Geefte informatie weer op het beeld
+        putText(src, "Desired Position: " + to_string(DesiredPosition) + " mm", Point(10, 30), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+        putText(src, "Kp: " + to_string(proportionalGain), Point(10, 60), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+        putText(src, "Td: " + to_string(DiffValue), Point(10, 90), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
+        putText(src, "Press P to push values to microcontroller, ESC to stop", Point(10, 120), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
 
         // geef het beeld weer
         imshow("Source", src);  // Geef het originele beeld weer.
-        imshow("HSV", hsv);     // Geef het HSV beeld weer
         imshow("Mask", mask);   // Geef het rode mask weer.
         imshow("Mask3", mask3); // Geef het blauwe mask weer.
 
@@ -363,12 +372,12 @@ int main()
             write(serial_port, Desirmsg.c_str(), Desirmsg.length());
             // stuur Kp
             ostringstream ss2;
-            ss2 << fixed << setprecision(5) << proportionalGain;
+            ss2 << fixed << setprecision(3) << proportionalGain;
             string Kpmsg = "$Kp," + ss2.str() + "*\n";
             write(serial_port, Kpmsg.c_str(), Kpmsg.length());
             // stuur Td
             ostringstream ss3;
-            ss3 << fixed << setprecision(5) << DiffValue;
+            ss3 << fixed << setprecision(3) << DiffValue;
             string Diffmsg = "$Td," + ss3.str() + "*\n";
             write(serial_port, Diffmsg.c_str(), Diffmsg.length());
             // Print de verzonden waarden naar terminal
