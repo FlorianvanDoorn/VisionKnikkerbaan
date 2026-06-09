@@ -9,6 +9,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp" "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o" "gcc" "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o.d"
+  "/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp" "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o" "gcc" "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o.d"
+  "/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp" "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o" "gcc" "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o.d"
   "" "main" "gcc" "CMakeFiles/main.dir/link.d"
   )
 

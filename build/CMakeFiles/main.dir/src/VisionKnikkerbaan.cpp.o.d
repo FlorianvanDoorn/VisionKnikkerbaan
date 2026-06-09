@@ -396,4 +396,9 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/termios-c_lflag.h \
  /usr/include/x86_64-linux-gnu/bits/termios-tcflow.h \
  /usr/include/x86_64-linux-gnu/bits/termios-misc.h \
- /usr/include/x86_64-linux-gnu/sys/ttydefaults.h
+ /usr/include/x86_64-linux-gnu/sys/ttydefaults.h \
+ /usr/include/imgui/imgui.h /usr/include/imgui/imconfig.h \
+ /usr/include/imgui/backends/imgui_impl_glfw.h \
+ /usr/include/imgui/backends/imgui_impl_opengl3.h \
+ /usr/include/GLFW/glfw3.h /usr/include/GL/gl.h /usr/include/GL/glext.h \
+ /usr/include/KHR/khrplatform.h

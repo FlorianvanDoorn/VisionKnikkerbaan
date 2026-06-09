@@ -153,6 +153,54 @@ src/VisionKnikkerbaan.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.s
 .PHONY : src/VisionKnikkerbaan.cpp.s
 
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.o: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.o
+
+# target to build an object file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o
+
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.i: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.i
+
+# target to preprocess a source file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i
+
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.s: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.s
+
+# target to generate assembly for a file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s
+
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.o: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.o
+
+# target to build an object file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o
+
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.i: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.i
+
+# target to preprocess a source file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i
+
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.s: usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.s
+
+# target to generate assembly for a file
+usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s
+.PHONY : usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +213,12 @@ help:
 	@echo "... src/VisionKnikkerbaan.o"
 	@echo "... src/VisionKnikkerbaan.i"
 	@echo "... src/VisionKnikkerbaan.s"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.o"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.i"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.s"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.o"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.i"
+	@echo "... usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.s"
 .PHONY : help
 
 

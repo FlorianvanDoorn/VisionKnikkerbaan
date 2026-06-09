@@ -39,6 +39,10 @@
 #include <unistd.h>
 #include <termios.h>
 #include <string>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
 
 // namespaces
 using namespace std;
@@ -83,9 +87,9 @@ int blueLowV = 200;
 int blueHighV = 255;
 
 // Proportionele versterking (hoog-res trackbar: schaal 0.001)
-int desiredPositionInt = 100; // Gewenste positie als trackbarwaarde in mm
-int proportionalGainInt = 35; // 1.000 -> waarde = proportionalGainInt / 1000.0
-int DiffValueInt = 60;        // Standaard waarde als trackbarwaarde (x0.01)
+float desiredPositionFloat = 100.0f;  // Gewenste positie als trackbarwaarde in mm
+float proportionalGainFloat = 0.035f; // 1.000 -> waarde = proportionalGainFloat / 1000.0
+float DiffValueFloat = 0.6f;          // Standaard waarde als trackbarwaarde (x0.01)
 
 void onTrackbar(int, void *) {}
 
@@ -113,6 +117,29 @@ int main()
         perror("Error opening serial port");
         return -1;
     }
+
+    if (!glfwInit())
+        return -1;
+
+    GLFWwindow *window =
+        glfwCreateWindow(800, 600,
+                         "Knikkerbaan GUI",
+                         nullptr,
+                         nullptr);
+
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    glfwMakeContextCurrent(window);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
 
     // Configureer de seriële poort (baudrate, data bits, stop bits, parity, etc.)
     termios tty;                  // Struct voor seriële poort instellingen
@@ -144,9 +171,6 @@ int main()
 
     // Maak een regulatiescherm voor het instellen van de gewenste positie en regelparameters
     namedWindow("Controls", WINDOW_GUI_EXPANDED);
-    createTrackbar("Desired position", "Controls", &desiredPositionInt, 200, onTrackbar); // Gewenste positie trackbar (0-200 mm)
-    createTrackbar("Kp x0.001", "Controls", &proportionalGainInt, 100, onTrackbar);       // Proportionele versterking trackbar (0.000 - 0.100, schaal 0.001)
-    createTrackbar("Td x0.01", "Controls", &DiffValueInt, 100, onTrackbar);               // DiffValue trackbar (0.00 - 1.00, schaal 0.01)
 
     // Laat de tekst permanent zien in de trackbarvensters
     resizeWindow("Controls", 560, 220);
@@ -164,8 +188,81 @@ int main()
     cout << "ESC: Afsluiten" << endl;
 
     // Main loop
-    while (true)
+    while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
+
+        int display_w, display_h;
+        glfwGetFramebufferSize(
+            window,
+            &display_w,
+            &display_h);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(
+            ImVec2((float)display_w,
+                   (float)display_h));
+
+        ImGui::Begin(
+            "MainWindow",
+            nullptr,
+            ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_NoCollapse);
+
+        ImGui::Separator();
+
+        ImGui::Text("Regelaar");
+
+        ImGui::SliderFloat("Desired Position [mm]",
+                           &desiredPositionFloat,
+                           0.0f,
+                           200.0f);
+
+        ImGui::SliderFloat("Kp",
+                           &proportionalGainFloat,
+                           0.02f,
+                           0.06f,
+                           "%.3f");
+
+        ImGui::SliderFloat("Td [s]",
+                           &DiffValueFloat,
+                           0.3f,
+                           0.9f,
+                           "%.2f");
+
+        if (ImGui::Button("Push"))
+        {
+            cout << "Push!" << endl;
+        }
+
+        ImGui::End();
+
+        ImGui::Render();
+
+        glViewport(
+            0,
+            0,
+            display_w,
+            display_h);
+
+        glClearColor(
+            0.1f,
+            0.1f,
+            0.1f,
+            1.0f);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_RenderDrawData(
+            ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
 
         // 1. Frame van camera lezen
         cap.read(src);
@@ -326,9 +423,9 @@ int main()
             ActualPosition = 200.0;
 
         // Update desired position vanuit de slider en converteer Kp integer (x0.001) naar double
-        DesiredPosition = static_cast<double>(desiredPositionInt);
-        proportionalGain = proportionalGainInt / 1000.0;
-        DiffValue = DiffValueInt / 100.0;
+        DesiredPosition = static_cast<double>(desiredPositionFloat); // Gewenste positie in mm
+        proportionalGain = static_cast<double>(proportionalGainFloat);
+        DiffValue = static_cast<double>(DiffValueFloat);
 
         // Stuur de actuele positie van de bal naar de microcontroller via de seriële poort
         string Posmsg = "$Actpos," + to_string(ActualPosition) + "*\n";
@@ -390,6 +487,14 @@ int main()
         if (key == 27)
             break;
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     // Camera vrijgeven
     cap.release();

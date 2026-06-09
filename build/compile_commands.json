@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build",
-  "command": "/usr/bin/g++ -isystem /usr/include/opencv4 -g -o CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o -c \"/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp\"",
-  "file": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp",
-  "output": "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o"
-}
-]

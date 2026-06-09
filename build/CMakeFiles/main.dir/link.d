@@ -3,6 +3,8 @@ main: \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crti.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/crtbeginS.o \
   CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o \
+  CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o \
+  CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o \
   /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_alphamat.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_aruco.so.4.10.0 \
@@ -39,6 +41,9 @@ main: \
   /usr/lib/x86_64-linux-gnu/libopencv_wechat_qrcode.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_xobjdetect.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_xphoto.so.4.10.0 \
+  /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libglfw.so \
+  /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libimgui.a \
+  /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libstb.so \
   /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_datasets.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_plot.so.4.10.0 \
@@ -58,6 +63,8 @@ main: \
   /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.10.0 \
   /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.10.0 \
+  /usr/lib/x86_64-linux-gnu/libGLX.so \
+  /usr/lib/x86_64-linux-gnu/libOpenGL.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
@@ -84,7 +91,7 @@ main: \
   /usr/lib/gcc/x86_64-linux-gnu/14/libgcc.a \
   /usr/lib/gcc/x86_64-linux-gnu/14/crtendS.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crtn.o \
-  /lib/x86_64-linux-gnu/libOpenGL.so.0 \
+  /lib64/ld-linux-x86-64.so.2 \
   /lib/x86_64-linux-gnu/libQt5Test.so.5 \
   /lib/x86_64-linux-gnu/libQt5OpenGL.so.5 \
   /lib/x86_64-linux-gnu/libQt5Widgets.so.5 \
@@ -108,11 +115,10 @@ main: \
   /lib/x86_64-linux-gnu/libgphoto2.so.6 \
   /lib/x86_64-linux-gnu/libgphoto2_port.so.12 \
   /lib/x86_64-linux-gnu/libz.so.1 \
-  /lib/x86_64-linux-gnu/libGLX.so.0 \
+  /usr/lib/x86_64-linux-gnu/libGLX.so \
   /lib/x86_64-linux-gnu/liblapack.so.3 \
   /lib/x86_64-linux-gnu/libblas.so.3 \
   /lib/x86_64-linux-gnu/libtbb.so.12 \
-  /lib64/ld-linux-x86-64.so.2 \
   /lib/x86_64-linux-gnu/libGLdispatch.so.0 \
   /lib/x86_64-linux-gnu/libGL.so.1 \
   /lib/x86_64-linux-gnu/libpng16.so.16 \
@@ -377,6 +383,10 @@ main: \
 
 CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o:
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o:
+
 /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.10.0:
 
 /usr/lib/x86_64-linux-gnu/libopencv_alphamat.so.4.10.0:
@@ -449,6 +459,12 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 
 /usr/lib/x86_64-linux-gnu/libopencv_xphoto.so.4.10.0:
 
+/usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libglfw.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libimgui.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libstb.so:
+
 /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.10.0:
 
 /usr/lib/x86_64-linux-gnu/libopencv_datasets.so.4.10.0:
@@ -486,6 +502,10 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.10.0:
 
 /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.10.0:
+
+/usr/lib/x86_64-linux-gnu/libGLX.so:
+
+/usr/lib/x86_64-linux-gnu/libOpenGL.so:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so:
 
@@ -539,7 +559,7 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crtn.o:
 
-/lib/x86_64-linux-gnu/libOpenGL.so.0:
+/lib64/ld-linux-x86-64.so.2:
 
 /lib/x86_64-linux-gnu/libQt5Test.so.5:
 
@@ -587,15 +607,13 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o:
 
 /lib/x86_64-linux-gnu/libz.so.1:
 
-/lib/x86_64-linux-gnu/libGLX.so.0:
+/usr/lib/x86_64-linux-gnu/libGLX.so:
 
 /lib/x86_64-linux-gnu/liblapack.so.3:
 
 /lib/x86_64-linux-gnu/libblas.so.3:
 
 /lib/x86_64-linux-gnu/libtbb.so.12:
-
-/lib64/ld-linux-x86-64.so.2:
 
 /lib/x86_64-linux-gnu/libGLdispatch.so.0:
 

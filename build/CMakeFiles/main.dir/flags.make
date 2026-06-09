@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -isystem /usr/include/opencv4
+CXX_INCLUDES = -I/usr/include/imgui -I/usr/include/stb -I/usr/include/imgui/backends -isystem /usr/include/opencv4
 
-CXX_FLAGS = 
+CXX_FLAGS = -std=c++17
 

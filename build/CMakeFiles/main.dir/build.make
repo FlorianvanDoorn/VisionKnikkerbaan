@@ -86,14 +86,46 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp" -o CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.s
 
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o: /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o -MF CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o.d -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o -c /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp > CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.i
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.s
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o: /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/main.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o -MF CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o.d -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o -c /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp > CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.i
+
+CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.s
+
 # Object files for target main
 main_OBJECTS = \
-"CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o"
+"CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o" \
+"CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o" \
+"CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
 
 main: CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o
+main: CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o
+main: CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o
 main: CMakeFiles/main.dir/build.make
 main: CMakeFiles/main.dir/compiler_depend.ts
 main: /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.10.0
@@ -151,8 +183,10 @@ main: /usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.10.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.10.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.10.0
 main: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.10.0
+main: /usr/lib/x86_64-linux-gnu/libGLX.so
+main: /usr/lib/x86_64-linux-gnu/libOpenGL.so
 main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
