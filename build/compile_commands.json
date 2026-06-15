@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build",
+  "command": "/usr/bin/g++ -I/usr/include/imgui -I/usr/include/stb -I/usr/include/imgui/backends -isystem /usr/include/opencv4 -g -std=c++17 -o CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o -c \"/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp\"",
+  "file": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/src/VisionKnikkerbaan.cpp",
+  "output": "CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o"
+},
+{
+  "directory": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build",
+  "command": "/usr/bin/g++ -I/usr/include/imgui -I/usr/include/stb -I/usr/include/imgui/backends -isystem /usr/include/opencv4 -g -std=c++17 -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o -c /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp",
+  "file": "/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp",
+  "output": "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o"
+},
+{
+  "directory": "/home/florianvandoorn/Documents/Code C++/VisionKnikkerbaan/build",
+  "command": "/usr/bin/g++ -I/usr/include/imgui -I/usr/include/stb -I/usr/include/imgui/backends -isystem /usr/include/opencv4 -g -std=c++17 -o CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o -c /usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp",
+  "file": "/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o"
+}
+]
