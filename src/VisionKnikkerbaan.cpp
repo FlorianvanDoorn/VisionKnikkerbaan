@@ -48,7 +48,17 @@
 using namespace std;
 using namespace cv;
 
+// Schermstaten voor navigatie
+enum ScreenState
+{
+    SCREEN_HOME,
+    SCREEN_THRESHOLD,
+    SCREEN_COMM
+};
+
 // global variables
+ScreenState currentScreen = SCREEN_HOME;
+
 // Images and masks
 Mat src;   // Input frame van camera
 Mat hsv;   // HSV versie van het frame
@@ -78,6 +88,14 @@ double DesiredPosition = 0.0;  // Gewenste positie van de knikker in mm (0-200 m
 double proportionalGain = 0.0; // wordt elke iteratie geüpdatet
 double DiffValue = 0.6;        // Standaard waarde
 
+// Trackbar instellingen voor de rode mask
+int redHighH1 = 10;
+int redLowH2 = 170;
+int redLowS = 120;
+int redHighS = 255;
+int redLowV = 50;
+int redHighV = 255;
+
 // Trackbar instellingen voor de blauwe border-masker
 int blueLowH = 85;
 int blueHighH = 99;
@@ -91,7 +109,8 @@ float desiredPositionFloat = 100.0f;  // Gewenste positie als trackbarwaarde in 
 float proportionalGainFloat = 0.035f; // 1.000 -> waarde = proportionalGainFloat / 1000.0
 float DiffValueFloat = 0.6f;          // Standaard waarde als trackbarwaarde (x0.01)
 
-void onTrackbar(int, void *) {}
+void onTrackbar(int, void *);
+void pushValues(int serial_port);
 
 int main()
 {
@@ -160,31 +179,10 @@ int main()
     // Stel de nieuwe instellingen in
     tcsetattr(serial_port, TCSANOW, &tty);
 
-    // Maak een regulatiescherm voor het instellen van de blauwe maskers
-    namedWindow("ThresholdControls", WINDOW_NORMAL);
-    createTrackbar("Blue H min", "ThresholdControls", &blueLowH, 179, onTrackbar);  // Hue blauw minimale waarde (0-179)
-    createTrackbar("Blue H max", "ThresholdControls", &blueHighH, 179, onTrackbar); // Hue blauw maximale waarde (0-179)
-    createTrackbar("Blue S min", "ThresholdControls", &blueLowS, 255, onTrackbar);  // Saturation blauw minimale waarde (0-255)
-    createTrackbar("Blue S max", "ThresholdControls", &blueHighS, 255, onTrackbar); // Saturation blauw maximale waarde (0-255)
-    createTrackbar("Blue V min", "ThresholdControls", &blueLowV, 255, onTrackbar);  // Value blauw minimale waarde (0-255)
-    createTrackbar("Blue V max", "ThresholdControls", &blueHighV, 255, onTrackbar); // Value blauw maximale waarde (0-255)
-
-    // Maak een regulatiescherm voor het instellen van de gewenste positie en regelparameters
-    namedWindow("Controls", WINDOW_GUI_EXPANDED);
-
-    // Laat de tekst permanent zien in de trackbarvensters
-    resizeWindow("Controls", 560, 220);
-    displayOverlay("Controls", "Gebruik de sliders om desired positie, Kp en Td aan te passen", 0);
-    displayStatusBar("Controls", "Desired pos = 0-200 mm | Kp = 0.000-0.100 | Td = 0.00-1.00", 0);
-    resizeWindow("ThresholdControls", 560, 260);
-    displayOverlay("ThresholdControls", "Gebruik deze sliders om blauwe thresholds voor het detectiemasker aan te passen", 0);
-    displayStatusBar("ThresholdControls", "Blue H/S/V range voor het detectiemasker", 0);
-
     // Instructies voor de gebruiker op de console
     cout << "\n=== Vision knikkerbaan ===" << endl;
     cout << getBuildInformation() << endl;
-    cout << "Gebruik de trackbars: 'Desired position', 'Kp x0.001' en 'Td x0.01'" << endl;
-    cout << "Druk toets 'P' om desired te pushen" << endl;
+    cout << "Klik op de Push-knop in de GUI om waarden naar de microcontroller te sturen" << endl;
     cout << "ESC: Afsluiten" << endl;
 
     // Main loop
@@ -215,30 +213,108 @@ int main()
                 ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoCollapse);
 
-        ImGui::Separator();
-
-        ImGui::Text("Regelaar");
-
-        ImGui::SliderFloat("Desired Position [mm]",
-                           &desiredPositionFloat,
-                           0.0f,
-                           200.0f);
-
-        ImGui::SliderFloat("Kp",
-                           &proportionalGainFloat,
-                           0.02f,
-                           0.06f,
-                           "%.3f");
-
-        ImGui::SliderFloat("Td [s]",
-                           &DiffValueFloat,
-                           0.3f,
-                           0.9f,
-                           "%.2f");
-
-        if (ImGui::Button("Push"))
+        // Homepage
+        if (currentScreen == SCREEN_HOME)
         {
-            cout << "Push!" << endl;
+            ImGui::SetCursorPosY(80);
+            ImGui::Text("Knikkerbaan Regelaar");
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            ImGui::Text("Status:");
+            ImGui::Text("Desired Position: %.1f mm", DesiredPosition);
+            ImGui::Text("Actual Position: %.1f mm", ActualPosition);
+            ImGui::Text("Kp: %.3f", proportionalGain);
+            ImGui::Text("Td: %.2f s", DiffValue);
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            if (ImGui::Button("Thresholds", ImVec2(200, 40)))
+            {
+                currentScreen = SCREEN_THRESHOLD;
+            }
+
+            ImGui::Spacing();
+
+            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            if (ImGui::Button("Communicatie", ImVec2(200, 40)))
+            {
+                currentScreen = SCREEN_COMM;
+            }
+        }
+        // Threshold-scherm
+        else if (currentScreen == SCREEN_THRESHOLD)
+        {
+            ImGui::SetCursorPosY(20);
+            ImGui::Text("Threshold Instellingen");
+            ImGui::Separator();
+
+            ImGui::Text("Rood Masker");
+            ImGui::SliderInt("Red H min##red2", &redLowH2, 0, 180);
+            ImGui::SliderInt("Red H max##red1", &redHighH1, 0, 180);
+            ImGui::SliderInt("Red S min##red", &redLowS, 0, 255);
+            ImGui::SliderInt("Red S max##red", &redHighS, 0, 255);
+            ImGui::SliderInt("Red V min##red", &redLowV, 0, 255);
+            ImGui::SliderInt("Red V max##red", &redHighV, 0, 255);
+
+            ImGui::Separator();
+            ImGui::Text("Blauw Masker");
+            ImGui::SliderInt("Blue H min##blue", &blueLowH, 0, 179);
+            ImGui::SliderInt("Blue H max##blue", &blueHighH, 0, 179);
+            ImGui::SliderInt("Blue S min##blue", &blueLowS, 0, 255);
+            ImGui::SliderInt("Blue S max##blue", &blueHighS, 0, 255);
+            ImGui::SliderInt("Blue V min##blue", &blueLowV, 0, 255);
+            ImGui::SliderInt("Blue V max##blue", &blueHighV, 0, 255);
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            if (ImGui::Button("Terug", ImVec2(200, 40)))
+            {
+                currentScreen = SCREEN_HOME;
+            }
+        }
+        // Communicatie-scherm
+        else if (currentScreen == SCREEN_COMM)
+        {
+            ImGui::SetCursorPosY(20);
+            ImGui::Text("Communicatie Instellingen");
+            ImGui::Separator();
+
+            ImGui::Text("Regelparameters");
+            ImGui::SliderFloat("Desired Position [mm]",
+                               &desiredPositionFloat,
+                               0.0f,
+                               200.0f);
+            ImGui::SliderFloat("Kp",
+                               &proportionalGainFloat,
+                               0.02f,
+                               0.06f,
+                               "%.3f");
+            ImGui::SliderFloat("Td [s]",
+                               &DiffValueFloat,
+                               0.3f,
+                               0.9f,
+                               "%.2f");
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            if (ImGui::Button("Push", ImVec2(200, 40)))
+            {
+                pushValues(serial_port);
+            }
+
+            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            if (ImGui::Button("Terug", ImVec2(200, 40)))
+            {
+                currentScreen = SCREEN_HOME;
+            }
         }
 
         ImGui::End();
@@ -271,8 +347,8 @@ int main()
         cvtColor(src, hsv, COLOR_BGR2HSV);
 
         // 2. Mask voor rood (2 ranges!)
-        inRange(hsv, Scalar(0, 120, 50), Scalar(10, 255, 255), mask1);    // Lage rood range
-        inRange(hsv, Scalar(170, 120, 50), Scalar(180, 255, 255), mask2); // Hoge rood range
+        inRange(hsv, Scalar(0, redLowS, redLowV), Scalar(redHighH1, redHighS, redHighV), mask1);  // Lage rood range
+        inRange(hsv, Scalar(redLowH2, redLowS, redLowV), Scalar(180, redHighS, redHighV), mask2); // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
         if (blueLowH > blueHighH)
@@ -330,30 +406,12 @@ int main()
         // Check of er überhaupt rode contours zijn gevonden
         if (Ballcontours.empty())
         {
-
-            // Display the image
-            imshow("Source", src);  // Geef het originele beeld weer.
-            imshow("Mask", mask);   // Geef het rode mask weer.
-            imshow("Mask3", mask3); // Geef het blauwe mask weer.
-
-            // ESC = stoppen
-            if (waitKey(1) == 27)
-                break;
             continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
         }
 
         // Check of er überhaupt genoeg blauwe componenten zijn gevonden (minimaal 2 borders nodig)
         if (comps.size() < 2)
         {
-            // Display the image
-            imshow("Source", src);  // Geef het originele beeld weer.
-            imshow("Mask", mask);   // Geef het rode mask weer.
-            imshow("Mask3", mask3); // Geef het blauwe mask weer.
-
-            // ESC = stoppen
-            if (waitKey(1) == 27)
-                break;
-
             continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
         }
 
@@ -449,43 +507,7 @@ int main()
         putText(src, "Desired Position: " + to_string(DesiredPosition) + " mm", Point(10, 30), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
         putText(src, "Kp: " + to_string(proportionalGain), Point(10, 60), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
         putText(src, "Td: " + to_string(DiffValue), Point(10, 90), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-        putText(src, "Press P to push values to microcontroller, ESC to stop", Point(10, 120), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
-
-        // geef het beeld weer
-        imshow("Source", src);  // Geef het originele beeld weer.
-        imshow("Mask", mask);   // Geef het rode mask weer.
-        imshow("Mask3", mask3); // Geef het blauwe mask weer.
-
-        // Wacht op een toets en verwerk besturingselementen
-        int key = waitKey(1);
-
-        // Push de waarden naar de microcontroller als 'P' wordt ingedrukt
-        if (key == 'p' || key == 'P')
-        {
-            // stuur desired position
-            ostringstream ss;
-            ss << fixed << setprecision(1) << DesiredPosition;
-            string Desirmsg = "$Desirpos," + ss.str() + "*\n";
-            write(serial_port, Desirmsg.c_str(), Desirmsg.length());
-            // stuur Kp
-            ostringstream ss2;
-            ss2 << fixed << setprecision(3) << proportionalGain;
-            string Kpmsg = "$Kp," + ss2.str() + "*\n";
-            write(serial_port, Kpmsg.c_str(), Kpmsg.length());
-            // stuur Td
-            ostringstream ss3;
-            ss3 << fixed << setprecision(3) << DiffValue;
-            string Diffmsg = "$Td," + ss3.str() + "*\n";
-            write(serial_port, Diffmsg.c_str(), Diffmsg.length());
-            // Print de verzonden waarden naar terminal
-            cout << "Pushed values to microcontroller:" << endl;
-            cout << Kpmsg << endl;
-            cout << Diffmsg << endl;
-        }
-
-        // ESC = stoppen
-        if (key == 27)
-            break;
+        putText(src, "Klik op Push om waarden naar microcontroller te sturen, ESC om te stoppen", Point(10, 120), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -503,4 +525,32 @@ int main()
     destroyAllWindows();
 
     return 0;
+}
+
+void pushValues(int serial_port)
+{
+    ostringstream ss;
+    ss << fixed << setprecision(1) << DesiredPosition;
+    string Desirmsg = "$Desirpos," + ss.str() + "*\n";
+    write(serial_port, Desirmsg.c_str(), Desirmsg.length());
+
+    ostringstream ss2;
+    ss2 << fixed << setprecision(3) << proportionalGain;
+    string Kpmsg = "$Kp," + ss2.str() + "*\n";
+    write(serial_port, Kpmsg.c_str(), Kpmsg.length());
+
+    ostringstream ss3;
+    ss3 << fixed << setprecision(3) << DiffValue;
+    string Diffmsg = "$Td," + ss3.str() + "*\n";
+    write(serial_port, Diffmsg.c_str(), Diffmsg.length());
+
+    cout << "Pushed values to microcontroller:" << endl;
+    cout << Kpmsg << endl;
+    cout << Diffmsg << endl;
+}
+
+void onTrackbar(int, void *)
+{
+    // Deze functie wordt aangeroepen wanneer een trackbar wordt aangepast.
+    // Hier kun je eventueel extra logica toevoegen als dat nodig is.
 }
