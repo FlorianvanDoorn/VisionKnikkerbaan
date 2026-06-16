@@ -3,48 +3,57 @@
 // | Bestand:      VisionKnikkerbaan.cpp                                              |
 // | Auteur:       Florian van Doorn                                                  |
 // | Opleiding:    Mechatronica - Avans Hogeschool Breda                              |
-// | Datum:        28-05-2026                                                         |
-// | Versie:       0.3                                                                |
+// | Datum:        16-06-2026                                                         |
+// | Versie:       0.4                                                                |
 // |                                                                                  |
 // | Beschrijving:                                                                    |
-// | Verwerkt camerabeelden met OpenCV om de positie van de knikker                   |
-// | te bepalen voor de regelkring.                                                   |
+// | Verwerkt camerabeelden met OpenCV en toont een ImGui GUI voor het instellen van  |
+// | kleurthresholds, communicatieparameters en positievisualisatie.                  |
 // |                                                                                  |
 // | Functionaliteit:                                                                 |
 // | - Camera uitlezen                                                                |
 // | - HSV filtering                                                                  |
 // | - Objectdetectie                                                                 |
 // | - Positiebepaling                                                                |
+// | - Seriële communicatie met microcontroller                                       |
+// | - ImGui GUI met realtime parameterinstellingen                                   |
 // |                                                                                  |
 // | Libraries:                                                                       |
 // | - OpenCV                                                                         |
+// | - ImGui                                                                          |
+// | - GLFW                                                                           |
+// | - OpenGL                                                                         |
 // | - iostream                                                                       |
 // | - algorithm                                                                      |
+// | - iomanip                                                                        |
+// | - sstream                                                                        |
 // | - fcntl.h                                                                        |
 // | - unistd.h                                                                       |
 // | - termios.h                                                                      |
+// | - string                                                                         |
+// | - cstdint                                                                        |
 // +----------------------------------------------------------------------------------+
 
-// used libraries
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <iostream>
-#include <algorithm>
-#include <iomanip>
-#include <sstream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <string>
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#include <GLFW/glfw3.h>
-#include <GL/gl.h>
-#include <cstdint>
+// gebruikte libraries
+#include <opencv2/opencv.hpp>          // Core OpenCV functionalities
+#include <opencv2/highgui/highgui.hpp> // OpenCV GUI functies (vensters, trackbars)
+#include <opencv2/imgproc.hpp>         // OpenCV beeldverwerking (filters, contours)
+#include <iostream>                    // Console I/O (cout, cerr)
+#include <algorithm>                   // Standaard algoritmes (sort, swap)
+#include <iomanip>                     // Stream formatting (setprecision)
+#include <sstream>                     // String streams voor seriële data
+#include <fcntl.h>                     // POSIX file control (open)
+#include <unistd.h>                    // POSIX systeemfuncties (write, close)
+#include <termios.h>                   // Seriële poort configuratie
+#include <string>                      // std::string
+#include <imgui.h>                     // ImGui GUI-bibliotheek
+#include <imgui_impl_glfw.h>           // ImGui backend voor GLFW
+#include <imgui_impl_opengl3.h>        // ImGui backend voor OpenGL3
+#include <GLFW/glfw3.h>                // GLFW windowing bibliotheek
+#include <GL/gl.h>                     // OpenGL functies
+#include <cstdint>                     // Exacte integer types
 
-// namespaces
+// Gebruik de veelgebruikte namespaces voor leesbaarheid in dit project
 using namespace std;
 using namespace cv;
 
@@ -201,15 +210,16 @@ int main()
 
     glfwMakeContextCurrent(window);
 
+    // ImGui initialisatie: creëer context en koppel aan GLFW/OpenGL3
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // Configureer de seriële poort (baudrate, data bits, stop bits, parity, etc.)
-    termios tty;                  // Struct voor seriële poort instellingen
-    tcgetattr(serial_port, &tty); // Lees huidige instellingen
+    // Configureer de seriële poort instellingen (baudrate, data bits, stop bits, parity)
+    termios tty;                  // Structuur met seriële poort parameters
+    tcgetattr(serial_port, &tty); // Lees de huidige poortinstellingen van het apparaat
 
     // Stel de baudrate in (115200 baud)
     cfsetispeed(&tty, B115200); // Stel de baudrate in (115200 baud)
@@ -235,6 +245,7 @@ int main()
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
+        // Haal alle window events op (toetsen, muis, sluiten)
         glfwPollEvents();
 
         int display_w, display_h;
@@ -243,6 +254,7 @@ int main()
             &display_w,
             &display_h);
 
+        // Start een nieuwe ImGui frame voor de huidige weergave
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -252,6 +264,7 @@ int main()
             ImVec2((float)display_w,
                    (float)display_h));
 
+        // Open het hoofdvenster van de GUI en verwijder titelbalk / schalen / verplaatsen
         ImGui::Begin(
             "MainWindow",
             nullptr,
@@ -260,7 +273,7 @@ int main()
                 ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoCollapse);
 
-        // Homepage
+        // Toon de startpagina met statusinformatie en navigatieknoppen
         if (currentScreen == SCREEN_HOME)
         {
             ImGui::SetCursorPosY(80);
@@ -292,14 +305,14 @@ int main()
                 currentScreen = SCREEN_COMM;
             }
         }
-        // Threshold-scherm
+        // Threshold-scherm: instellingen voor kleursegmentatie en visualisatie
         else if (currentScreen == SCREEN_THRESHOLD)
         {
             ImGui::SetCursorPosY(20);
             ImGui::Text("Threshold Instellingen");
             ImGui::Separator();
 
-            // Layout: sliders on the left, big image on the right
+            // Verdeel het scherm in twee kolommen: links sliders, rechts beeldweergave
             ImGui::Columns(2);
             ImGui::SetColumnWidth(0, 380.0f);
 
@@ -325,6 +338,7 @@ int main()
             ImGui::SetCursorPosX((ImGui::GetColumnWidth() - 200) / 2.0f);
             if (ImGui::Button("Terug", ImVec2(200, 40)))
             {
+                // Keer terug naar het hoofdmenu
                 currentScreen = SCREEN_HOME;
             }
 
@@ -334,7 +348,7 @@ int main()
             const char *items = "Rood Masker\0Blauw Masker\0Overlay\0";
             ImGui::Combo("View", &viewMode, items);
 
-            // Right column: big image view
+            // Rechterkolom: toon het geselecteerde mask of overlaybeeld
             Mat viewMat;
             if (viewMode == 0)
             {
@@ -356,8 +370,9 @@ int main()
             {
                 if (!src.empty() && !mask.empty())
                 {
+                    // Maak een transparante overlay van de originele opname met het rode mask
                     Mat colored = Mat::zeros(src.size(), CV_8UC3);
-                    colored.setTo(Scalar(0, 0, 255), mask); // red overlay where mask is set
+                    colored.setTo(Scalar(0, 0, 255), mask); // rode overlay waar het mask aanwezig is
                     Mat overlay;
                     addWeighted(src, 1.0, colored, 0.5, 0.0, overlay);
                     viewMat = overlay;
@@ -390,7 +405,7 @@ int main()
 
             ImGui::Columns(1);
         }
-        // Communicatie-scherm
+        // Communicatie-scherm: stuur parameterwaarden naar de ESP32 / microcontroller
         else if (currentScreen == SCREEN_COMM)
         {
             ImGui::SetCursorPosY(20);
@@ -421,6 +436,7 @@ int main()
             ImGui::SetCursorPosX((display_w - 200) / 2.0f);
             if (ImGui::Button("Push", ImVec2(200, 40)))
             {
+                // Stuur de geselecteerde parameters naar de microcontroller
                 pushValues(serial_port);
             }
 
@@ -433,6 +449,7 @@ int main()
 
         ImGui::End();
 
+        // Render de ImGui user interface naar het OpenGL context
         ImGui::Render();
 
         glViewport(
@@ -441,6 +458,7 @@ int main()
             display_w,
             display_h);
 
+        // Stel het vensterachtergrondkleur in en wis de framebuffer
         glClearColor(
             0.1f,
             0.1f,
@@ -449,31 +467,35 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Teken de huidige ImGui frame op het scherm
         ImGui_ImplOpenGL3_RenderDrawData(
             ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
 
-        // 1. Frame van camera lezen
+        // 1. Lees een nieuw frame van de camera in de bronmatrix
         cap.read(src);
 
-        // 1. BGR → HSV
+        // 2. Converteer het BGR-kleurbeeld naar HSV voor eenvoudige kleursegmentatie
         cvtColor(src, hsv, COLOR_BGR2HSV);
 
-        // 2. Mask voor rood (2 ranges!)
+        // 3. Maak een binair mask voor rood met twee hue-ranges (om de hue-splitsing bij 0/180 te omzeilen)
         inRange(hsv, Scalar(0, redLowS, redLowV), Scalar(redHighH1, redHighS, redHighV), mask1);  // Lage rood range
         inRange(hsv, Scalar(redLowH2, redLowS, redLowV), Scalar(180, redHighS, redHighV), mask2); // Hoge rood range
 
         // inRange(hsv, Scalar(0, 0, 215), Scalar(180, 80, 255), mask3);   // Geel range
+        // Zorg dat de blauwe onder- en bovenwaarden altijd in de correcte volgorde staan
         if (blueLowH > blueHighH)
             std::swap(blueLowH, blueHighH);
         if (blueLowS > blueHighS)
             std::swap(blueLowS, blueHighS);
         if (blueLowV > blueHighV)
             std::swap(blueLowV, blueHighV);
+
+        // Maak een binair mask voor blauw (border detection)
         inRange(hsv, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), mask3); // Blauw range
 
-        // Combineer de twee rood ranges in één mask
+        // Combineer de twee rood ranges in één mask zodat alle roodwaarden worden vastgelegd
         mask = mask1 | mask2;
 
         // Ruis verwijderen (rode mask)
@@ -489,11 +511,11 @@ int main()
         vector<vector<Point>> Ballcontours;                                   // Vector voor rode contours
         findContours(mask, Ballcontours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE); // Alleen externe contours, geen hiërarchie nodig, eenvoudige benadering
 
-        // Contours / connected components van blauw vinden
+        // Contours / connected components van blauw vinden met statistieken en centroiden
         Mat labels, stats, centroids;
         int nLabels = connectedComponentsWithStats(mask3, labels, stats, centroids);
 
-        // Verzamel componenten (area, centroid)
+        // Verzamel componenten: alleen de grotere objecten worden meegenomen als mogelijke borders
         vector<pair<int, Point>> comps; // pair<area, center>
         for (int lbl = 1; lbl < nLabels; ++lbl)
         {
@@ -506,7 +528,7 @@ int main()
             }
         }
 
-        // Sorteer aflopend op oppervlakte
+        // Sorteer de gevonden blauwe componenten van groot naar klein op oppervlakte
         sort(comps.begin(), comps.end(), [](const pair<int, Point> &a, const pair<int, Point> &b)
              { return a.first > b.first; });
 
@@ -520,15 +542,16 @@ int main()
         bool hasTwoBlueBorders = (comps.size() >= 2);
         if (hasTwoBlueBorders)
         {
+            // Visualiseer de twee grootste blauwe grenscomponenten
             line(src, borderCenters[0], borderCenters[1], Scalar(0, 255, 255), 2);
             circle(src, borderCenters[0], 10, Scalar(0, 255, 255), 2);
             circle(src, borderCenters[1], 10, Scalar(0, 255, 255), 2);
         }
 
-        // Check of er überhaupt rode contours zijn gevonden
+        // Controleer of er überhaupt rode contours zijn gevonden voordat we ermee rekenen
         if (Ballcontours.empty())
         {
-            continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
+            continue; // Geen rode contour, sla deze frame over
         }
 
         // Check of er überhaupt genoeg blauwe componenten zijn gevonden (minimaal 2 borders nodig)
@@ -537,17 +560,16 @@ int main()
             continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
         }
 
-        // 5. Grootste contour pakken (aannemen = bal)
+        // 5. Selecteer de grootste rode contour als de bal, mits hij groot genoeg is
         int largestIndexRed = 0;
         double maxAreaRed = 0;
 
-        // Loop door alle contours en vind de grootste
+        // Loop door alle gevonden rode contours en kies de grootste als bal-achtige vorm
         for (int i = 0; i < Ballcontours.size(); i++)
         {
-
             double areaRed = contourArea(Ballcontours[i]);
 
-            // Alleen overschrijven als de contour groot genoeg is (om ruis te vermijden)
+            // Alleen accepteren als de contour groter is dan de ruisdrempel
             if (areaRed > maxAreaRed && areaRed > 500)
             {
                 maxAreaRed = areaRed;
@@ -562,7 +584,7 @@ int main()
         cxRed = int(mRed.m10 / mRed.m00);
         cyRed = int(mRed.m01 / mRed.m00);
 
-        // Bereken de coördinaten van het middelpunt van de blauwe contouren (de borders)
+        // Sorteer de twee kenmerkende blauwe bordercentra op x-positie voor consistente relatieve berekeningen
         if (borderCenters[0].x < borderCenters[1].x)
         {
             cxBlue1 = borderCenters[0].x;
@@ -584,16 +606,17 @@ int main()
         dyBlue = cyBlue1 - cyBlue2;
         dxBlue = cxBlue1 - cxBlue2;
 
+        // Bereken de lineaire afstanden tussen de rode bal en blauwe borders, en tussen de twee blauwe borders
         LengthBlue = sqrt(dxBlue * dxBlue + dyBlue * dyBlue);
-
         LengthRed = sqrt(dxRed * dxRed + dyRed * dyRed);
 
+        // Vermijd deling door nul of te kleine waarden
         if (LengthBlue < 1)
             LengthBlue = 1;
         if (LengthRed < 1)
             LengthRed = 1;
 
-        // Bereken de actuele positie van de bal in mm (0-200 mm)
+        // Bereken de actuele positie van de bal in mm als verhouding tussen rode en blauwe afstand
         ActualPosition = (static_cast<double>(LengthRed) / static_cast<double>(LengthBlue)) * 200.0; // Actuele positie van de bal in mm
 
         // Beperk de waarde van ActualPosition tot het bereik 0-200 mm
@@ -602,12 +625,12 @@ int main()
         if (ActualPosition > 200.0)
             ActualPosition = 200.0;
 
-        // Update desired position vanuit de slider en converteer Kp integer (x0.001) naar double
+        // Werk de regelwaarden bij vanuit de UI sliders zodat de laatste gebruikerinstellingen worden gebruikt
         DesiredPosition = static_cast<double>(desiredPositionFloat); // Gewenste positie in mm
         proportionalGain = static_cast<double>(proportionalGainFloat);
         DiffValue = static_cast<double>(DiffValueFloat);
 
-        // Stuur de actuele positie van de bal naar de microcontroller via de seriële poort
+        // Stuur de actuele positie van de bal continu naar de microcontroller
         string Posmsg = "$Actpos," + to_string(ActualPosition) + "*\n";
         write(serial_port, Posmsg.c_str(), Posmsg.length());
 
@@ -626,7 +649,7 @@ int main()
         circle(src, borderCenters[1], 10, Scalar(0, 255, 255), 2);
     }
 
-    // Cleanup
+    // Cleanup: geef alle resources vrij voordat het programma afsluit
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
@@ -635,39 +658,41 @@ int main()
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    // Camera vrijgeven
+    // Release camera device en sluit OpenCV vensters
     cap.release();
-
-    // Alle vensters sluiten
     destroyAllWindows();
 
     return 0;
 }
 
-// Functie om waarden naar de microcontroller te sturen via de seriële poort
+// Functie om regelparameters naar de microcontroller te sturen via de seriële poort
 void pushValues(int serial_port)
 {
-    // Stuur de gewenste positie naar de microcontroller via de seriële poort
-    ostringstream ss;                                        // String stream voor het formatteren van de gewenste positie
-    ss << fixed << setprecision(1) << DesiredPosition;       // Formatteren naar 1 decimaal
-    string Desirmsg = "$Desirpos," + ss.str() + "*\n";       // Maak het bericht voor de gewenste positie
-    write(serial_port, Desirmsg.c_str(), Desirmsg.length()); // Stuur het bericht via de seriële poort
+    // Verstuur de gewenste positie in mm
+    ostringstream ss;                                        // String stream voor formattering
+    ss << fixed << setprecision(1) << DesiredPosition;       // 1 decimaal
+    string Desirmsg = "$Desirpos," + ss.str() + "*\n";       // Protocol: $Desirpos,<waarde>*
+    write(serial_port, Desirmsg.c_str(), Desirmsg.length()); // Schrijf naar seriële poort
 
+    // Verstuur de proportionele versterking
     ostringstream ss2;
     ss2 << fixed << setprecision(3) << proportionalGain;
     string Kpmsg = "$Kp," + ss2.str() + "*\n";
     write(serial_port, Kpmsg.c_str(), Kpmsg.length());
 
+    // Verstuur de differentiewaarde (Td)
     ostringstream ss3;
     ss3 << fixed << setprecision(3) << DiffValue;
     string Diffmsg = "$Td," + ss3.str() + "*\n";
     write(serial_port, Diffmsg.c_str(), Diffmsg.length());
 
+    // Verstuur de ESP32-mode (sensor of vision)
     ostringstream ss4;
     ss4 << espMode;
     string Modemsg = "$Mode," + ss4.str() + "*\n";
     write(serial_port, Modemsg.c_str(), Modemsg.length());
 
+    // Log de verzonden waarden naar de console voor debugdoeleinden
     cout << "Pushed values to microcontroller:" << endl;
     cout << Kpmsg << endl;
     cout << Diffmsg << endl;
