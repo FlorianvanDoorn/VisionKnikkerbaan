@@ -1,0 +1,5 @@
+# ninja log v6
+17	2056	1781628305846282574	CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_opengl3.cpp.o	a935c56dd260643d
+2	4378	1781631861535048588	CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o	681d6dc3dc3954e9
+6	2068	1781628305838280572	CMakeFiles/main.dir/usr/share/doc/libimgui-dev/examples/backends/imgui_impl_glfw.cpp.o	cd00f8d13e387249
+9027	10763	1781631287669478498	main	ffe0d597beb000ec

@@ -228,7 +228,6 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o
  /usr/include/opencv4/opencv2/core/base.hpp
  /usr/include/opencv4/opencv2/core/bufferpool.hpp
  /usr/include/opencv4/opencv2/core/check.hpp
- /usr/include/opencv4/opencv2/core/core.hpp
  /usr/include/opencv4/opencv2/core/cuda.hpp
  /usr/include/opencv4/opencv2/core/cuda.inl.hpp
  /usr/include/opencv4/opencv2/core/cuda_types.hpp
@@ -265,7 +264,6 @@ CMakeFiles/main.dir/src/VisionKnikkerbaan.cpp.o
  /usr/include/opencv4/opencv2/dnn/utils/inference_engine.hpp
  /usr/include/opencv4/opencv2/dnn/version.hpp
  /usr/include/opencv4/opencv2/features2d.hpp
- /usr/include/opencv4/opencv2/features2d/features2d.hpp
  /usr/include/opencv4/opencv2/flann.hpp
  /usr/include/opencv4/opencv2/flann/all_indices.h
  /usr/include/opencv4/opencv2/flann/allocator.h

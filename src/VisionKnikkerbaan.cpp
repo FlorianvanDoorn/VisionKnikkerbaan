@@ -27,10 +27,8 @@
 
 // used libraries
 #include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
@@ -43,6 +41,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
+#include <GL/gl.h>
+#include <cstdint>
 
 // namespaces
 using namespace std;
@@ -66,6 +66,54 @@ Mat mask1; // Mask voor lage rood range
 Mat mask2; // Mask voor hoge rood range
 Mat mask3; // Mask voor blauw range
 Mat mask;  // Gecombineerde mask voor beide rood ranges
+
+// OpenGL textures for displaying images in ImGui
+static GLuint texMask = 0;
+static GLuint texMaskBlue = 0;
+static GLuint texOverlay = 0;
+
+// UI state
+static int viewMode = 0; // 0 = rood mask, 1 = blauw mask, 2 = overlay
+static bool autoscaleImages = true;
+static int espMode = 0; // 0 = sensor, 1 = vision
+
+// Helper: compute an ImGui display size preserving aspect ratio
+static ImVec2 getDisplaySize(const Mat &mat, float maxW, float maxH)
+{
+    if (mat.empty())
+        return ImVec2(0, 0);
+    float iw = (float)mat.cols;
+    float ih = (float)mat.rows;
+    float scale = std::min(maxW / iw, maxH / ih);
+    if (scale > 1.0f)
+        scale = 1.0f; // don't upscale
+    return ImVec2(iw * scale, ih * scale);
+}
+
+// Helper: upload/update an OpenGL texture from a cv::Mat (RGB or grayscale)
+static GLuint matToTexture(const Mat &mat, GLuint &tex)
+{
+    if (mat.empty())
+        return 0;
+
+    Mat image;
+    if (mat.channels() == 1)
+        cvtColor(mat, image, COLOR_GRAY2RGB);
+    else
+        cvtColor(mat, image, COLOR_BGR2RGB);
+
+    if (tex == 0)
+        glGenTextures(1, &tex);
+
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    return tex;
+}
 
 // variabelen voor het berekenen van posities en afstanden
 int cxRed = 0;     // X-coördinaat van het middelpunt van de rode contour
@@ -109,7 +157,6 @@ float desiredPositionFloat = 100.0f;  // Gewenste positie als trackbarwaarde in 
 float proportionalGainFloat = 0.035f; // 1.000 -> waarde = proportionalGainFloat / 1000.0
 float DiffValueFloat = 0.6f;          // Standaard waarde als trackbarwaarde (x0.01)
 
-void onTrackbar(int, void *);
 void pushValues(int serial_port);
 
 int main()
@@ -252,6 +299,11 @@ int main()
             ImGui::Text("Threshold Instellingen");
             ImGui::Separator();
 
+            // Layout: sliders on the left, big image on the right
+            ImGui::Columns(2);
+            ImGui::SetColumnWidth(0, 380.0f);
+
+            // Left column: sliders and controls
             ImGui::Text("Rood Masker");
             ImGui::SliderInt("Red H min##red2", &redLowH2, 0, 180);
             ImGui::SliderInt("Red H max##red1", &redHighH1, 0, 180);
@@ -260,7 +312,6 @@ int main()
             ImGui::SliderInt("Red V min##red", &redLowV, 0, 255);
             ImGui::SliderInt("Red V max##red", &redHighV, 0, 255);
 
-            ImGui::Separator();
             ImGui::Text("Blauw Masker");
             ImGui::SliderInt("Blue H min##blue", &blueLowH, 0, 179);
             ImGui::SliderInt("Blue H max##blue", &blueHighH, 0, 179);
@@ -270,13 +321,74 @@ int main()
             ImGui::SliderInt("Blue V max##blue", &blueHighV, 0, 255);
 
             ImGui::Spacing();
-            ImGui::Spacing();
+            ImGui::Checkbox("Autoscale images", &autoscaleImages);
+            const char *items = "Rood Masker\0Blauw Masker\0Overlay\0";
+            ImGui::Combo("View", &viewMode, items);
 
-            ImGui::SetCursorPosX((display_w - 200) / 2.0f);
+            ImGui::Spacing();
+            ImGui::SetCursorPosX((ImGui::GetColumnWidth() - 200) / 2.0f);
             if (ImGui::Button("Terug", ImVec2(200, 40)))
             {
                 currentScreen = SCREEN_HOME;
             }
+
+            ImGui::NextColumn();
+
+            // Right column: big image view
+            Mat viewMat;
+            if (viewMode == 0)
+            {
+                if (!mask.empty())
+                {
+                    viewMat = mask;
+                    matToTexture(viewMat, texMask);
+                }
+            }
+            else if (viewMode == 1)
+            {
+                if (!mask3.empty())
+                {
+                    viewMat = mask3;
+                    matToTexture(viewMat, texMaskBlue);
+                }
+            }
+            else if (viewMode == 2)
+            {
+                if (!src.empty() && !mask.empty())
+                {
+                    Mat colored = Mat::zeros(src.size(), CV_8UC3);
+                    colored.setTo(Scalar(0, 0, 255), mask); // red overlay where mask is set
+                    Mat overlay;
+                    addWeighted(src, 1.0, colored, 0.5, 0.0, overlay);
+                    viewMat = overlay;
+                    matToTexture(viewMat, texOverlay);
+                }
+            }
+
+            ImGui::BeginChild("ImageView", ImVec2(0, 0), false);
+            if (!viewMat.empty())
+            {
+                ImGui::Text("View");
+                ImVec2 avail = ImGui::GetContentRegionAvail();
+                float maxW = avail.x;
+                float maxH = (float)display_h - 120.0f; // allow tall view
+                ImVec2 sz = autoscaleImages ? getDisplaySize(viewMat, maxW, maxH) : ImVec2(640, 480);
+                GLuint whichTex = 0;
+                if (viewMode == 0)
+                    whichTex = texMask;
+                else if (viewMode == 1)
+                    whichTex = texMaskBlue;
+                else if (viewMode == 2)
+                    whichTex = texOverlay;
+                ImGui::Image((void *)(intptr_t)whichTex, sz);
+            }
+            else
+            {
+                ImGui::Text("View: niet beschikbaar");
+            }
+            ImGui::EndChild();
+
+            ImGui::Columns(1);
         }
         // Communicatie-scherm
         else if (currentScreen == SCREEN_COMM)
@@ -301,7 +413,9 @@ int main()
                                0.9f,
                                "%.2f");
 
-            ImGui::Spacing();
+            ImGui::Separator();
+            const char *espItems = "Sensor\0Vision\0";
+            ImGui::Combo("ESP32 Mode", &espMode, espItems);
             ImGui::Spacing();
 
             ImGui::SetCursorPosX((display_w - 200) / 2.0f);
@@ -403,16 +517,24 @@ int main()
             borderCenters[i] = comps[i].second;
         }
 
+        bool hasTwoBlueBorders = (comps.size() >= 2);
+        if (hasTwoBlueBorders)
+        {
+            line(src, borderCenters[0], borderCenters[1], Scalar(0, 255, 255), 2);
+            circle(src, borderCenters[0], 10, Scalar(0, 255, 255), 2);
+            circle(src, borderCenters[1], 10, Scalar(0, 255, 255), 2);
+        }
+
         // Check of er überhaupt rode contours zijn gevonden
         if (Ballcontours.empty())
         {
-            continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
+            // continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
         }
 
         // Check of er überhaupt genoeg blauwe componenten zijn gevonden (minimaal 2 borders nodig)
-        if (comps.size() < 2)
+        if (!hasTwoBlueBorders)
         {
-            continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
+            // continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
         }
 
         // 5. Grootste contour pakken (aannemen = bal)
@@ -502,14 +624,9 @@ int main()
         line(src, borderCenters[0], borderCenters[1], Scalar(0, 255, 255), 2);
         circle(src, borderCenters[0], 10, Scalar(0, 255, 255), 2);
         circle(src, borderCenters[1], 10, Scalar(0, 255, 255), 2);
-
-        // Geefte informatie weer op het beeld
-        putText(src, "Desired Position: " + to_string(DesiredPosition) + " mm", Point(10, 30), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-        putText(src, "Kp: " + to_string(proportionalGain), Point(10, 60), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-        putText(src, "Td: " + to_string(DiffValue), Point(10, 90), FONT_HERSHEY_SIMPLEX, 0.8, Scalar(255, 255, 255), 2);
-        putText(src, "Klik op Push om waarden naar microcontroller te sturen, ESC om te stoppen", Point(10, 120), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255, 255, 255), 2);
     }
 
+    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
@@ -527,12 +644,14 @@ int main()
     return 0;
 }
 
+// Functie om waarden naar de microcontroller te sturen via de seriële poort
 void pushValues(int serial_port)
 {
-    ostringstream ss;
-    ss << fixed << setprecision(1) << DesiredPosition;
-    string Desirmsg = "$Desirpos," + ss.str() + "*\n";
-    write(serial_port, Desirmsg.c_str(), Desirmsg.length());
+    // Stuur de gewenste positie naar de microcontroller via de seriële poort
+    ostringstream ss;                                        // String stream voor het formatteren van de gewenste positie
+    ss << fixed << setprecision(1) << DesiredPosition;       // Formatteren naar 1 decimaal
+    string Desirmsg = "$Desirpos," + ss.str() + "*\n";       // Maak het bericht voor de gewenste positie
+    write(serial_port, Desirmsg.c_str(), Desirmsg.length()); // Stuur het bericht via de seriële poort
 
     ostringstream ss2;
     ss2 << fixed << setprecision(3) << proportionalGain;
@@ -544,13 +663,12 @@ void pushValues(int serial_port)
     string Diffmsg = "$Td," + ss3.str() + "*\n";
     write(serial_port, Diffmsg.c_str(), Diffmsg.length());
 
+    string modeStr = (espMode == 1) ? "vision" : "sensor";
+    string Modemsg = "$Mode," + modeStr + "*\n";
+    write(serial_port, Modemsg.c_str(), Modemsg.length());
+
     cout << "Pushed values to microcontroller:" << endl;
     cout << Kpmsg << endl;
     cout << Diffmsg << endl;
-}
-
-void onTrackbar(int, void *)
-{
-    // Deze functie wordt aangeroepen wanneer een trackbar wordt aangepast.
-    // Hier kun je eventueel extra logica toevoegen als dat nodig is.
+    cout << Modemsg << endl;
 }
