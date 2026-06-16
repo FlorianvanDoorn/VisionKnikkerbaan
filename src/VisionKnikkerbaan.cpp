@@ -321,11 +321,7 @@ int main()
             ImGui::SliderInt("Blue V max##blue", &blueHighV, 0, 255);
 
             ImGui::Spacing();
-            ImGui::Checkbox("Autoscale images", &autoscaleImages);
-            const char *items = "Rood Masker\0Blauw Masker\0Overlay\0";
-            ImGui::Combo("View", &viewMode, items);
 
-            ImGui::Spacing();
             ImGui::SetCursorPosX((ImGui::GetColumnWidth() - 200) / 2.0f);
             if (ImGui::Button("Terug", ImVec2(200, 40)))
             {
@@ -333,6 +329,10 @@ int main()
             }
 
             ImGui::NextColumn();
+
+            ImGui::Checkbox("Autoscale images", &autoscaleImages);
+            const char *items = "Rood Masker\0Blauw Masker\0Overlay\0";
+            ImGui::Combo("View", &viewMode, items);
 
             // Right column: big image view
             Mat viewMat;
@@ -404,13 +404,13 @@ int main()
                                200.0f);
             ImGui::SliderFloat("Kp",
                                &proportionalGainFloat,
-                               0.02f,
-                               0.06f,
+                               0.01f,
+                               0.09f,
                                "%.3f");
             ImGui::SliderFloat("Td [s]",
                                &DiffValueFloat,
-                               0.3f,
-                               0.9f,
+                               0.0f,
+                               1.0f,
                                "%.2f");
 
             ImGui::Separator();
@@ -528,13 +528,13 @@ int main()
         // Check of er überhaupt rode contours zijn gevonden
         if (Ballcontours.empty())
         {
-            // continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
+            continue; // Ga terug naar het begin van de loop als er geen rode contours zijn gevonden (om fouten te voorkomen bij het berekenen van het middelpunt)
         }
 
         // Check of er überhaupt genoeg blauwe componenten zijn gevonden (minimaal 2 borders nodig)
         if (!hasTwoBlueBorders)
         {
-            // continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
+            continue; // Ga terug naar het begin van de loop als er niet genoeg borders zijn gevonden
         }
 
         // 5. Grootste contour pakken (aannemen = bal)
@@ -663,8 +663,9 @@ void pushValues(int serial_port)
     string Diffmsg = "$Td," + ss3.str() + "*\n";
     write(serial_port, Diffmsg.c_str(), Diffmsg.length());
 
-    string modeStr = (espMode == 1) ? "vision" : "sensor";
-    string Modemsg = "$Mode," + modeStr + "*\n";
+    ostringstream ss4;
+    ss4 << espMode;
+    string Modemsg = "$Mode," + ss4.str() + "*\n";
     write(serial_port, Modemsg.c_str(), Modemsg.length());
 
     cout << "Pushed values to microcontroller:" << endl;
