@@ -140,10 +140,7 @@ int dyBlue = 0;     // Verschil in Y-coördinaat tussen eerste en tweede blauwe 
 int LengthBlue = 0; // Afstand tussen eerste en tweede blauwe contour in pixels
 
 // Positie en regelparameters
-double ActualPosition = 0.0;   // Actuele positie van de knikker in mm (0-200 mm)
-double DesiredPosition = 0.0;  // Gewenste positie van de knikker in mm (0-200 mm)
-double proportionalGain = 0.0; // wordt elke iteratie geüpdatet
-double DiffValue = 0.6;        // Standaard waarde
+double ActualPosition = 0.0; // Actuele positie van de knikker in mm (0-200 mm)
 
 // Trackbar instellingen voor de rode mask
 int redHighH1 = 10;
@@ -157,7 +154,7 @@ int redHighV = 255;
 int blueLowH = 85;
 int blueHighH = 99;
 int blueHighS = 255;
-int blueLowS = 40;
+int blueLowS = 150;
 int blueLowV = 200;
 int blueHighV = 255;
 
@@ -282,10 +279,10 @@ int main()
             ImGui::Spacing();
 
             ImGui::Text("Status:");
-            ImGui::Text("Desired Position: %.1f mm", DesiredPosition);
+            ImGui::Text("Desired Position: %.1f mm", desiredPositionFloat);
             ImGui::Text("Actual Position: %.1f mm", ActualPosition);
-            ImGui::Text("Kp: %.3f", proportionalGain);
-            ImGui::Text("Td: %.2f s", DiffValue);
+            ImGui::Text("Kp: %.3f", proportionalGainFloat);
+            ImGui::Text("Td: %.2f s", DiffValueFloat);
 
             ImGui::Spacing();
             ImGui::Spacing();
@@ -625,11 +622,6 @@ int main()
         if (ActualPosition > 200.0)
             ActualPosition = 200.0;
 
-        // Werk de regelwaarden bij vanuit de UI sliders zodat de laatste gebruikerinstellingen worden gebruikt
-        DesiredPosition = static_cast<double>(desiredPositionFloat); // Gewenste positie in mm
-        proportionalGain = static_cast<double>(proportionalGainFloat);
-        DiffValue = static_cast<double>(DiffValueFloat);
-
         // Stuur de actuele positie van de bal continu naar de microcontroller
         string Posmsg = "$Actpos," + to_string(ActualPosition) + "*\n";
         write(serial_port, Posmsg.c_str(), Posmsg.length());
@@ -669,20 +661,20 @@ int main()
 void pushValues(int serial_port)
 {
     // Verstuur de gewenste positie in mm
-    ostringstream ss;                                        // String stream voor formattering
-    ss << fixed << setprecision(1) << DesiredPosition;       // 1 decimaal
-    string Desirmsg = "$Desirpos," + ss.str() + "*\n";       // Protocol: $Desirpos,<waarde>*
-    write(serial_port, Desirmsg.c_str(), Desirmsg.length()); // Schrijf naar seriële poort
+    ostringstream ss;                                                            // String stream voor formattering
+    ss << fixed << setprecision(1) << static_cast<double>(desiredPositionFloat); // 1 decimaal
+    string Desirmsg = "$Desirpos," + ss.str() + "*\n";                           // Protocol: $Desirpos,<waarde>*
+    write(serial_port, Desirmsg.c_str(), Desirmsg.length());                     // Schrijf naar seriële poort
 
     // Verstuur de proportionele versterking
     ostringstream ss2;
-    ss2 << fixed << setprecision(3) << proportionalGain;
+    ss2 << fixed << setprecision(3) << static_cast<double>(proportionalGainFloat);
     string Kpmsg = "$Kp," + ss2.str() + "*\n";
     write(serial_port, Kpmsg.c_str(), Kpmsg.length());
 
     // Verstuur de differentiewaarde (Td)
     ostringstream ss3;
-    ss3 << fixed << setprecision(3) << DiffValue;
+    ss3 << fixed << setprecision(3) << static_cast<double>(DiffValueFloat);
     string Diffmsg = "$Td," + ss3.str() + "*\n";
     write(serial_port, Diffmsg.c_str(), Diffmsg.length());
 
