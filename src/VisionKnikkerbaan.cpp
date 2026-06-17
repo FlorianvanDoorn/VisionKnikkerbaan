@@ -278,7 +278,7 @@ int main()
             ImGui::Spacing();
             ImGui::Spacing();
 
-            ImGui::Text("Status:");
+            ImGui::Text("Mode: %s", espMode == 0 ? "Sensor" : "Vision");
             ImGui::Text("Desired Position: %.1f mm", desiredPositionFloat);
             ImGui::Text("Actual Position: %.1f mm", ActualPosition);
             ImGui::Text("Kp: %.3f", proportionalGainFloat);
